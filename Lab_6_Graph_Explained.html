@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 6 - Graph & Dijkstra Explained</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #1f2328; line-height: 1.7; padding: 20px; }
+  h1 { color: #0550ae; text-align: center; margin: 30px 0; font-size: 2.2em; border-bottom: 2px solid #d0d7de; padding-bottom: 15px; }
+  h2 { color: #cf222e; margin: 40px 0 20px; font-size: 1.6em; border-left: 4px solid #cf222e; padding-left: 12px; }
+  h3 { color: #1a7f37; margin: 30px 0 15px; font-size: 1.3em; }
+  h4 { color: #0550ae; margin: 20px 0 10px; font-size: 1.1em; }
+  .concept-box { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 20px; margin: 20px 0; }
+  .concept-box h3 { margin-top: 0; }
+  .code-block { background: #fafbfc; border-radius: 8px; margin: 15px 0; overflow-x: auto; border: 1px solid #d0d7de; }
+  .code-block .file-label { background: #e8ecf0; color: #0550ae; padding: 6px 15px; font-size: 0.85em; font-weight: 600; border-bottom: 1px solid #d0d7de; border-radius: 8px 8px 0 0; }
+  .code-block pre { margin: 0; padding: 15px; overflow-x: auto; }
+  .code-block code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; }
+  .line { display: block; white-space: pre; }
+  .line:hover { background: #e8ecf0; }
+  .line-num { display: inline-block; width: 30px; text-align: right; margin-right: 15px; color: #8b949e; user-select: none; }
+  .keyword { color: #cf222e; }
+  .type { color: #0550ae; }
+  .string { color: #0a3069; }
+  .comment { color: #6e7781; }
+  .method { color: #953800; }
+  .field { color: #0550ae; }
+  .annotation { color: #8250df; }
+  .number { color: #0550ae; }
+  .explanation { background: #ffffff; border: 1px solid #d0d7de; border-left: 4px solid #0550ae; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 5px 0 15px 0; }
+  .explanation strong { color: #cf222e; }
+  .explanation .term { color: #0550ae; }
+  .nav { position: sticky; top: 0; background: #ffffff; padding: 10px 0; z-index: 100; border-bottom: 1px solid #d0d7de; margin-bottom: 20px; }
+  .nav a { color: #0550ae; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+  .nav a:hover { text-decoration: underline; color: #cf222e; }
+  .tip { background: #ddf4ff; border-left: 4px solid #0550ae; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  .warning { background: #ffebe9; border-left: 4px solid #cf222e; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  ul, ol { margin: 10px 0 10px 25px; }
+  li { margin: 6px 0; }
+  .flow-arrow { color: #0550ae; font-size: 1.5em; text-align: center; margin: 10px 0; }
+  .file-group { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; margin: 15px 0; }
+  .file-group-title { color: #cf222e; font-weight: 600; font-size: 1.1em; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { border: 1px solid #d0d7de; padding: 8px 12px; text-align: left; }
+  th { background: #f6f8fa; color: #0550ae; }
+  .graph-vis { font-family: 'Consolas', monospace; line-height: 1.4; margin: 15px 0; padding: 15px; background: #fafbfc; border-radius: 8px; white-space: pre; overflow-x: auto; color: #1a7f37; border: 1px solid #d0d7de; }
+  .algo-step { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px; margin: 8px 0; }
+  .algo-step strong { color: #0550ae; }
+  .trace-table { width:100%; border-collapse:collapse; margin:10px 0; font-size:0.85em; font-family:'Consolas',monospace; }
+  .trace-table th { background:#e8ecf0; color:#1f2328; border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table td { border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table .highlight { background:#fff3cd; }
+  .trace-label { color:#0550ae; font-weight:600; margin:15px 0 5px; font-size:0.95em; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="#concepts">Graph Core Concepts</a>
+  <a href="#computer">1. Computer Connection (DFS)</a>
+  <a href="#cameron">2. Cameron Tourist Route (Dijkstra)</a>
+  <a href="#simplegraph">3. Simple Graph (Dijkstra)</a>
+</div>
+
+<h1>Lab 6 - Graph &amp; Dijkstra's Algorithm<br><span style="font-size:0.6em;color:#8b949e;">Line-by-Line Code Explanation</span></h1>
+
+<!-- ============================================================ -->
+<!-- CORE CONCEPTS -->
+<!-- ============================================================ -->
+<div class="concept-box" id="concepts">
+<h3>Graph Concepts You Need to Know</h3>
+
+<div class="graph-vis">
+Graph Types:
+  - Directed Graph: edges have a direction (A → B is not the same as B → A)
+  - Undirected Graph: edges have no direction (A—B is same as B—A)
+
+Representations:
+  - Adjacency Matrix: 2D array [][] where matrix[i][j] = weight of edge i→j
+  - Adjacency List: Array of lists where list[i] contains all neighbors of i
+
+Key Algorithms:
+  - DFS (Depth-First Search): explores as far as possible along each branch before backtracking. Uses a stack (or recursion).
+  - BFS (Breadth-First Search): explores all neighbors at current depth first. Uses a queue.
+  - Dijkstra's Algorithm: finds the shortest path from a source to all other nodes in a weighted graph.
+</div>
+
+<table>
+  <tr><th>Concept</th><th>Definition</th><th>Used In</th></tr>
+  <tr><td>Vertex (Node)</td><td>A point in the graph</td><td>All 3 programs</td></tr>
+  <tr><td>Edge</td><td>A connection between two vertices</td><td>All 3 programs</td></tr>
+  <tr><td>Adjacency List</td><td>Each vertex stores a list of its neighbors</td><td>Computer Connection</td></tr>
+  <tr><td>Adjacency Matrix</td><td>2D array where [i][j] = edge weight between i and j</td><td>Cameron, Simple Graph</td></tr>
+  <tr><td>DFS (Recursive)</td><td>Depth-First Search using recursion</td><td>Computer Connection</td></tr>
+  <tr><td>Dijkstra</td><td>Shortest path in weighted graph (greedy algorithm)</td><td>Cameron, Simple Graph</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Key Insight:</strong> The choice between adjacency matrix and adjacency list depends on the graph density. A matrix uses more memory (V²) but gives O(1) edge lookup. A list uses less memory for sparse graphs but takes O(V) to check if an edge exists.
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 1: COMPUTER CONNECTION -->
+<!-- ============================================================ -->
+<h2 id="computer">1. Computer Connection (DFS Connectivity Check)</h2>
+<p><strong>What it does:</strong> Builds an undirected graph of computers (vertices) and connections (edges). Then answers queries: "Are computer X and computer Y connected?" Uses <strong>DFS (Depth-First Search)</strong> to check connectivity.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the two files work together</div>
+<p><strong>ComputerGraph.java</strong> → The graph data structure using an adjacency list. Provides addEdge (undirected) and isConnected (DFS-based) methods.</p>
+<p><strong>CompConnectApp.java</strong> → Reads vertex/edge counts, builds the graph, reads query pairs, and prints "Connected" or "Not connected" for each.</p>
+</div>
+
+<h3>ComputerGraph.java</h3>
+
+<div class="code-block">
+<div class="file-label">ComputerGraph.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.ArrayList;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports <span class="term">ArrayList</span> — a resizable array implementation of the List interface. We'll use this to store the adjacency list.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span><span class="keyword">import</span> java.util.List;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Imports the <span class="term">List</span> interface. We'll declare our adjacency list as <code>List&lt;List&lt;Integer&gt;&gt;</code> — a list of lists.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span><span class="keyword">public class</span> <span class="type">ComputerGraph</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Declares the ComputerGraph class.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>    <span class="keyword">private</span> <span class="type">int</span> vertices;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Stores the number of vertices in the graph. Used for creating the visited array and bounds checking.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>    <span class="keyword">private</span> <span class="type">List</span>&lt;<span class="type">List</span>&lt;Integer&gt;&gt; adjList;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> The <strong>adjacency list</strong>. This is a <span class="term">List of Lists of Integers</span>. The outer list has one entry per vertex. Each inner list contains the neighbor indices of that vertex. For example, if vertex 0 is connected to vertices 1 and 2, then adjList.get(0) = [1, 2].
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>    <span class="keyword">public</span> <span class="method">ComputerGraph</span>(<span class="type">int</span> vertices) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Constructor that takes the number of vertices.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="keyword">this</span>.vertices = vertices;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Stores the vertex count.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>        adjList = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Creates a new ArrayList that will hold the adjacency lists. This creates the outer list.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; vertices; i++) {</span>
+<span class="line"><span class="line-num">13</span>            adjList.add(<span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;());</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 12-13:</strong> Iterates vertices times. For each vertex, creates a <strong>new empty ArrayList</strong> (the inner list for that vertex's neighbors) and adds it to the outer list. After this, adjList has 'vertices' empty inner lists — one per vertex.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        }</span>
+<span class="line"><span class="line-num">15</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 14-15:</strong> Close the for loop and constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>    <span class="keyword">public void</span> <span class="method">addEdge</span>(<span class="type">int</span> src, <span class="type">int</span> dest) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Method to add an undirected edge between src and dest.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        adjList.get(src).add(dest);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Gets the inner list for <code>src</code> (using adjList.get(src)) and adds <code>dest</code> as a neighbor. This means "src connects TO dest".
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        adjList.get(dest).add(src);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Gets the inner list for <code>dest</code> and adds <code>src</code> as a neighbor. This makes the edge <strong>undirected</strong> — if A connects to B, then B also connects to A. If we omitted this line, the graph would be directed.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> Closes addEdge.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>    <span class="keyword">public boolean</span> <span class="method">isConnected</span>(<span class="type">int</span> src, <span class="type">int</span> dest) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Public method that checks if there's a path between src and dest. This is the <strong>connectivity check</strong> — returns true if you can travel from src to dest through any sequence of edges.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>        <span class="type">boolean</span>[] visited = <span class="keyword">new</span> <span class="type">boolean</span>[vertices];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> Creates a <span class="term">boolean array</span> named <code>visited</code> with size equal to the number of vertices. All values default to <code>false</code>. This array tracks which vertices we've already visited during DFS to avoid infinite loops (visiting the same node twice).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>        <span class="keyword">return</span> dfs(src, dest, visited);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Calls the private recursive <span class="term">dfs</span> method and returns its result. Passes the src (where to start), dest (what we're looking for), and the visited array.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Closes isConnected.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>    <span class="keyword">private boolean</span> <span class="method">dfs</span>(<span class="type">int</span> current, <span class="type">int</span> dest, <span class="type">boolean</span>[] visited) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> Private recursive DFS method. Takes the current vertex, the destination we're searching for, and the visited array.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>        <span class="keyword">if</span> (current == dest) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 28:</strong> <strong>Base case:</strong> If the current vertex IS the destination, we found a path! Return true immediately.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">29</span>            <span class="keyword">return true</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 29:</strong> Return true — path exists.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">30</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 30:</strong> Closes the found case.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">31</span>        visited[current] = <span class="keyword">true</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 31:</strong> Marks the current vertex as <strong>visited</strong>. This is crucial — without this, we'd loop forever if the graph has a cycle (A→B→C→A). Once visited, we won't process this vertex again.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">32</span>        <span class="keyword">for</span> (<span class="type">int</span> neighbour : adjList.get(current)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 32:</strong> Enhanced for-each loop that iterates over <strong>all neighbors</strong> of the current vertex. <code>adjList.get(current)</code> returns the list of all vertices directly connected to 'current'. We try each neighbor as the next step in our path.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">33</span>            <span class="keyword">if</span> (!visited[neighbour]) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 33:</strong> Only recurse into this neighbor if we haven't visited it before. This prevents cycles and redundant exploration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>                <span class="keyword">if</span> (dfs(neighbour, dest, visited)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Recursively call DFS on the neighbor. If that call returns true (meaning a path to dest was found from this neighbor), we propagate the true result.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">35</span>                    <span class="keyword">return true</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 35:</strong> Return true — we found a path through this neighbor. The true propagates all the way back up the recursive calls.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>                }</span>
+<span class="line"><span class="line-num">37</span>            }</span>
+<span class="line"><span class="line-num">38</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 36-38:</strong> Close the inner if, the outer if, and the for loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">39</span>        <span class="keyword">return false</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 39:</strong> If we've exhausted all neighbors and none led to dest, return false. No path exists from this node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">40</span>    }</span>
+<span class="line"><span class="line-num">41</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 40-41:</strong> Close method and class.
+</div>
+</div>
+
+<div class="behind-scenes" style="margin-top:25px;padding:16px;background:#f0f6fc;border:1px solid #0550ae;border-radius:8px;">
+<h3 style="color:#0550ae;margin-top:0;"> Behind the Scenes &mdash; DFS Execution Trace</h3>
+<p><strong>Input:</strong> vertices=4, edges=3: (1,2), (2,3), (3,4), query: isConnected(1,4)</p>
+
+<h4 style="color:#1a7f37;">Step 1: Build the Adjacency List</h4>
+<p>After adding all edges (undirected), the graph looks like:</p>
+<table class="trace-table">
+  <tr><th>Vertex</th><th>Neighbors</th></tr>
+  <tr><td>1</td><td>[2]</td></tr>
+  <tr><td>2</td><td>[1, 3]</td></tr>
+  <tr><td>3</td><td>[2, 4]</td></tr>
+  <tr><td>4</td><td>[3]</td></tr>
+</table>
+<p>Each edge is added in both directions (undirected). For example, addEdge(1,2) adds 2 to adj[1] AND 1 to adj[2].</p>
+
+<h4 style="color:#1a7f37;">Step 2: DFS Recursion Trace for isConnected(1, 4)</h4>
+
+<p><strong>dfs(current=1, dest=4)</strong></p>
+<table class="trace-table">
+  <tr><th>Action</th><th colspan="4">visited[] (1-indexed)</th><th>Result</th></tr>
+  <tr><td></td><td><strong>v[1]</strong></td><td><strong>v[2]</strong></td><td><strong>v[3]</strong></td><td><strong>v[4]</strong></td><td></td></tr>
+  <tr>
+    <td>current=1 &ne; 4, mark visited[1]=true</td>
+    <td class="highlight"><strong>T</strong></td><td>F</td><td>F</td><td>F</td>
+    <td>&rarr; check neighbors [2]</td>
+  </tr>
+  <tr>
+    <td>neighbor 2 is unvisited &rarr; recurse</td>
+    <td>T</td><td class="highlight"><strong>T</strong></td><td>F</td><td>F</td>
+    <td>&rarr; dfs(2,4)</td>
+  </tr>
+  <tr>
+    <td>current=2 &ne; 4, mark visited[2]=true<br>neighbors [1,3]: skip 1 (visited), go to 3</td>
+    <td>T</td><td>T</td><td class="highlight"><strong>T</strong></td><td>F</td>
+    <td>&rarr; dfs(3,4)</td>
+  </tr>
+  <tr>
+    <td>current=3 &ne; 4, mark visited[3]=true<br>neighbors [2,4]: skip 2 (visited), go to 4</td>
+    <td>T</td><td>T</td><td>T</td><td class="highlight"><strong>T</strong></td>
+    <td>&rarr; dfs(4,4)</td>
+  </tr>
+  <tr>
+    <td class="highlight"><strong>current=4 == dest=4 &rarr; PATH FOUND!</strong></td>
+    <td>T</td><td>T</td><td>T</td><td>T</td>
+    <td class="highlight"><strong>return true</strong></td>
+  </tr>
+</table>
+
+<h4 style="color:#1a7f37;">Step 3: Call Stack Unwinding</h4>
+<p>When dfs(4,4) returns <strong>true</strong>, each recursive call passes it back up:</p>
+<div style="font-family:'Consolas',monospace;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:12px;margin:8px 0;">
+  dfs(4,4) &rarr; <strong>true</strong> (base case: current == dest)<br>
+  &uarr; dfs(3,4) got true from neighbor 4 &rarr; <strong>return true</strong><br>
+  &uarr; dfs(2,4) got true from neighbor 3 &rarr; <strong>return true</strong><br>
+  &uarr; dfs(1,4) got true from neighbor 2 &rarr; <strong>return true</strong><br>
+  &uarr; isConnected(1,4) &rarr; prints <strong>"Connected"</strong>
+</div>
+
+<h4 style="color:#1a7f37;">Final Answer</h4>
+<p><strong>Path exists:</strong> 1 &rarr; 2 &rarr; 3 &rarr; 4. Computers 1 and 4 are connected!</p>
+</div>
+
+<h3>CompConnectApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">CompConnectApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">CompConnectApp</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Public class declaration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        Scanner sc = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Creates Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        <span class="type">int</span> vertex = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Reads the number of <strong>vertices</strong> (computers) in the graph.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="type">int</span> edge = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Reads the number of <strong>edges</strong> (connections) to add.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="type">ComputerGraph</span> Con = <span class="keyword">new</span> <span class="type">ComputerGraph</span>(vertex+<span class="number">1</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Creates a ComputerGraph with <code>vertex+1</code> vertices. The <code>+1</code> is used because vertices might be numbered from 1, but array indices start at 0. By creating vertex+1 slots, we can use index 1 through vertex directly, wasting index 0. This is a common technique to avoid subtracting 1 from every vertex index.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;edge; i++) {</span>
+<span class="line"><span class="line-num">15</span>            <span class="type">int</span> source = sc.<span class="method">nextInt</span>();</span>
+<span class="line"><span class="line-num">16</span>            <span class="type">int</span> dest = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 14-16:</strong> Loops 'edge' times. Each iteration reads a pair of vertex numbers (source and destination) that are connected.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>            Con.<span class="method">addEdge</span>(source, dest);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Adds an undirected edge between source and dest. After all edges are added, the graph is fully built.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Closes the edge-building loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>        <span class="type">int</span> testCase = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Reads the number of connectivity queries (test cases) to answer.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;testCase; i++) {</span>
+<span class="line"><span class="line-num">23</span>            <span class="type">int</span> src = sc.<span class="method">nextInt</span>();</span>
+<span class="line"><span class="line-num">24</span>            <span class="type">int</span> des = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 22-24:</strong> For each test case, reads a source and destination pair to check.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>            <span class="keyword">if</span> (Con.<span class="method">isConnected</span>(src, des)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Calls isConnected which uses DFS to determine if a path exists between src and des.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>                System.out.<span class="method">println</span>(<span class="string">"Connected"</span>);</span>
+<span class="line"><span class="line-num">27</span>            } <span class="keyword">else</span> {</span>
+<span class="line"><span class="line-num">28</span>                System.out.<span class="method">println</span>(<span class="string">"Not connected"</span>);</span>
+<span class="line"><span class="line-num">29</span>            }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 26-29:</strong> Prints "Connected" if true, "Not connected" if false.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">30</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 30:</strong> Loop ends. All test cases processed.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">33</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 33:</strong> Close the class (note: missing sc.close() — a minor resource leak in the original code).
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input:<br>
+  <code>4 3</code> (4 vertices, 3 edges)<br>
+  <code>1 2</code><br>
+  <code>2 3</code><br>
+  <code>3 4</code><br>
+  <code>2</code> (2 test cases)<br>
+  <code>1 4</code><br>
+  <code>2 5</code><br><br>
+  Output:<br>
+  Connected (path: 1→2→3→4)<br>
+  Not connected (vertex 5 doesn't exist in the graph)
+</div>
+
+<div class="algo-step">
+  <strong>DFS Walkthrough for isConnected(1, 4):</strong><br>
+  1. dfs(current=1, dest=4) → not equal, mark visited[1]=true<br>
+  2. Neighbors of 1: [2]. dfs(2, dest=4) → not equal, mark visited[2]=true<br>
+  3. Neighbors of 2: [1, 3]. visited[1] is true, skip. dfs(3, dest=4) → not equal, mark visited[3]=true<br>
+  4. Neighbors of 3: [2, 4]. visited[2] is true, skip. dfs(4, dest=4) → <strong>current == dest → return true!</strong><br>
+  5. True propagates back: dfs(3) → true, dfs(2) → true, dfs(1) → true
+</div>
+
+
+<!-- ============================================================ -->
+<!-- PROJECT 2: CAMERON TOURIST ROUTE PLANNER -->
+<!-- ============================================================ -->
+<h2 id="cameron">2. Smart Cameron Tourist Route Planner (Dijkstra)</h2>
+<p><strong>What it does:</strong> Has a pre-defined graph of 6 Cameron Highlands locations with distances between them. Uses Dijkstra's algorithm to find the shortest path between any two locations.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the two files work together</div>
+<p><strong>Dijkstra.java</strong> → Implements Dijkstra's shortest path algorithm. Takes an adjacency matrix and source vertex, computes shortest distances to all vertices.</p>
+<p><strong>CameronApp.java</strong> → Defines the graph as a 6x6 adjacency matrix (hardcoded), reads source and destination from user, runs Dijkstra, and prints the shortest distance.</p>
+</div>
+
+<h3>Dijkstra.java</h3>
+
+<div class="code-block">
+<div class="file-label">Dijkstra.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.HashSet;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports <span class="term">HashSet</span> — a set implementation that stores unique elements with O(1) lookup. We'll use two sets: <code>settled</code> (processed nodes) and <code>unsettled</code> (nodes to process).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span><span class="keyword">import</span> java.util.InputMismatchException;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Imports InputMismatchException — an exception thrown by Scanner when input doesn't match the expected type. Not actually used in this code, but imported anyway.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">import</span> java.util.Iterator;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Imports <span class="term">Iterator</span> — used to iterate over the unsettled set.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span><span class="keyword">import</span> java.util.Scanner;</span>
+<span class="line"><span class="line-num">5</span><span class="keyword">import</span> java.util.Set;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 4-5:</strong> Import Scanner and the Set interface. Scanner is imported but not used in Dijkstra.java (it's used in CameronApp). These are unnecessary imports.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span><span class="keyword">public class</span> <span class="type">Dijkstra</span></span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Declares the Dijkstra class.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>    <span class="keyword">public int</span>          distances[];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Public array that stores the <strong>shortest distance</strong> from the source to each vertex. <code>distances[i]</code> = shortest known distance from source to vertex i. After the algorithm completes, this contains the final shortest paths. It's public so other classes (like CameronApp) can read the results.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>    <span class="keyword">public</span> <span class="type">Set</span>&lt;Integer&gt; settled;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> A set of vertices whose <strong>shortest distance has been finalized</strong>. Once a vertex is in this set, we won't process it again. In Dijkstra's algorithm, "settled" means we've found the absolute shortest path to this vertex.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>    <span class="keyword">public</span> <span class="type">Set</span>&lt;Integer&gt; unsettled;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> A set of vertices that we've <strong>discovered but not finalized</strong>. These are candidates for processing. We repeatedly pick the vertex with the smallest distance from this set.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>    <span class="keyword">public int</span>          number_of_nodes;</span>
+<span class="line"><span class="line-num">13</span>    <span class="keyword">public int</span>          adjacencyMatrix[][];</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 12-13:</strong> Store the number of nodes and a copy of the adjacency matrix. These are public — not ideal encapsulation but functional.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>    <span class="keyword">public</span> <span class="method">Dijkstra</span>(<span class="type">int</span> number_of_nodes)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> Constructor that takes the node count.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>        <span class="keyword">this</span>.number_of_nodes = number_of_nodes;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Stores the node count.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        distances = <span class="keyword">new int</span>[number_of_nodes];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Creates the distances array with size equal to the number of nodes. All entries default to 0.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        settled = <span class="keyword">new</span> <span class="type">HashSet</span>&lt;Integer&gt;();</span>
+<span class="line"><span class="line-num">20</span>        unsettled = <span class="keyword">new</span> <span class="type">HashSet</span>&lt;Integer&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 19-20:</strong> Creates empty HashSets for settled and unsettled vertices.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>        adjacencyMatrix = <span class="keyword">new int</span>[number_of_nodes][number_of_nodes];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Creates a 2D array (matrix) of size number_of_nodes × number_of_nodes. This will hold a <strong>copy</strong> of the graph's adjacency matrix.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>    <span class="keyword">public void</span> <span class="method">dijkstra_algorithm</span>(<span class="type">int</span> adjacency_matrix[][], <span class="type">int</span> source)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> The main algorithm method. Takes the graph's adjacency matrix and the source vertex. This is the entry point for running Dijkstra.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>        <span class="type">int</span> evaluationNode;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Declares a variable to hold the node currently being evaluated (processed).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; number_of_nodes; i++)</span>
+<span class="line"><span class="line-num">27</span>            <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; number_of_nodes; j++)</span>
+<span class="line"><span class="line-num">28</span>                adjacencyMatrix[i][j] = adjacency_matrix[i][j];</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 26-28:</strong> Nested for loops that <strong>copy</strong> the input adjacency_matrix into the object's adjacencyMatrix field. This creates a local copy so modifications don't affect the original. Each cell [i][j] represents the weight of the edge from i to j (0 means no direct edge).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">30</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; number_of_nodes; i++)</span>
+<span class="line"><span class="line-num">31</span>        {</span>
+<span class="line"><span class="line-num">32</span>            distances[i] = Integer.MAX_VALUE;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 30-32:</strong> Initializes all distances to <span class="term">Integer.MAX_VALUE</span> (2147483647 — the largest possible int value). This represents "infinity" — we haven't found a path to these nodes yet.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">33</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 33:</strong> Closes the initialization loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>        unsettled.add(source);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Adds the source vertex to the unsettled set. The algorithm starts processing from here.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">35</span>        distances[source] = <span class="number">0</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 35:</strong> The distance from the source to itself is 0. This is the starting point — all other distances are "infinity" (MAX_VALUE).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>        <span class="keyword">while</span> (!unsettled.<span class="method">isEmpty</span>())</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 36:</strong> The main Dijkstra loop. Continues as long as there are unprocessed vertices. Each iteration settles (finalizes) one vertex.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">38</span>            evaluationNode = getNodeWithMinimumDistanceFromUnsettled();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 38:</strong> Calls a helper method that finds the unsettled vertex with the <strong>smallest known distance</strong>. This is the key step in Dijkstra — always process the closest unsettled vertex first (greedy approach).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">39</span>            unsettled.remove(evaluationNode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 39:</strong> Removes this node from the unsettled set. It's being processed now.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">40</span>            settled.add(evaluationNode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 40:</strong> Adds this node to the settled set. Once settled, its distance is <strong>final and guaranteed to be the shortest</strong>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">41</span>            evaluateNeighbours(evaluationNode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 41:</strong> Updates the distances of all neighbors of the evaluationNode. For each neighbor, it checks if going through evaluationNode gives a shorter path than what we currently know.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">42</span>        }</span>
+<span class="line"><span class="line-num">43</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 42-43:</strong> Close the while loop and the method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">44</span>    <span class="keyword">private int</span> <span class="method">getNodeWithMinimumDistanceFromUnsettled</span>()</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 44:</strong> Private helper method that finds the unsettled vertex with the minimum distance. This is the "extract-min" operation in Dijkstra.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">46</span>        <span class="type">int</span> min;</span>
+<span class="line"><span class="line-num">47</span>        <span class="type">int</span> node = <span class="number">0</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 46-47:</strong> Declare variables: <code>min</code> to hold the minimum distance found, <code>node</code> initialized to 0 to hold the vertex with that minimum.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">49</span>        Iterator&lt;Integer&gt; iterator = unsettled.<span class="method">iterator</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 49:</strong> Creates an <span class="term">Iterator</span> to iterate over the unsettled set. We need an iterator because we need to get the <strong>first element</strong> of the set (sets don't have a "get first" method directly).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">50</span>        node = iterator.<span class="method">next</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 50:</strong> Gets the first element from the unsettled set. We use this as our initial candidate for the minimum. At minimum, we need at least one element in unsettled (we checked isEmpty before calling).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">51</span>        min = distances[node];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 51:</strong> Sets the initial minimum to the distance of the first unsettled node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">52</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; distances.length; i++)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 52:</strong> Iterates through ALL vertices (not just unsettled) to find the minimum. This is O(V) per call — a simple but not optimally efficient implementation.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">54</span>            <span class="keyword">if</span> (unsettled.<span class="method">contains</span>(i))</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 54:</strong> Only consider vertex i if it's in the unsettled set (hasn't been finalized yet).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">56</span>                <span class="keyword">if</span> (distances[i] &lt;= min)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 56:</strong> If this unsettled vertex has a distance ≤ current minimum, update the minimum. Using <code>&lt;=</code> ensures we update even if equal (tie-breaking, though the specific tie-breaker doesn't matter for correctness).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">58</span>                    min = distances[i];</span>
+<span class="line"><span class="line-num">59</span>                    node = i;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 58-59:</strong> Update min and node with the better candidate.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">60</span>                }</span>
+<span class="line"><span class="line-num">61</span>            }</span>
+<span class="line"><span class="line-num">62</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 60-62:</strong> Close inner if, outer if, for loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">63</span>        <span class="keyword">return</span> node;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 63:</strong> Returns the vertex with the smallest distance from the unsettled set.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">64</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 64:</strong> Closes the method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">66</span>    <span class="keyword">private void</span> <span class="method">evaluateNeighbours</span>(<span class="type">int</span> evaluationNode)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 66:</strong> Method that examines all neighbors of evaluationNode and updates their distances if we found a shorter path.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">68</span>        <span class="type">int</span> edgeDistance = -<span class="number">1</span>;</span>
+<span class="line"><span class="line-num">69</span>        <span class="type">int</span> newDistance = -<span class="number">1</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 68-69:</strong> Declare variables: <code>edgeDistance</code> for the weight of the edge to a neighbor, <code>newDistance</code> for the potential new path distance.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">71</span>        <span class="keyword">for</span> (<span class="type">int</span> destinationNode = <span class="number">0</span>; destinationNode &lt; number_of_nodes; destinationNode++)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 71:</strong> Iterates through all possible destination vertices. For each, checks if it's a neighbor of evaluationNode (adjacencyMatrix != 0) and if it's not yet settled.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">73</span>            <span class="keyword">if</span> (!settled.<span class="method">contains</span>(destinationNode))</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 73:</strong> Only process neighbors that haven't been settled yet. Once a node is settled, its distance is already the shortest possible.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">75</span>                <span class="keyword">if</span> (adjacencyMatrix[evaluationNode][destinationNode] != <span class="number">0</span>)</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 75:</strong> Checks if there IS an edge between evaluationNode and destinationNode. In an adjacency matrix, a non-zero value means there's an edge with that weight. Zero means no direct connection.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">77</span>                    edgeDistance = adjacencyMatrix[evaluationNode][destinationNode];</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 77:</strong> Gets the weight of the edge from evaluationNode to destinationNode.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">78</span>                    newDistance = distances[evaluationNode] + edgeDistance;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 78:</strong> Calculates the <strong>candidate distance</strong>: the shortest known distance to evaluationNode PLUS the weight of the edge to destinationNode. This would be the distance if we go source → ... → evaluationNode → destinationNode.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">79</span>                    <span class="keyword">if</span> (newDistance &lt; distances[destinationNode])</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 79:</strong> <strong>Relaxation step:</strong> If the new path (through evaluationNode) is <strong>shorter</strong> than the currently known distance to destinationNode, we've found a better path!
+</div>
+<pre><code>
+<span class="line"><span class="line-num">81</span>                        distances[destinationNode] = newDistance;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 81:</strong> Updates the shortest known distance to destinationNode with the new, shorter value.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">83</span>                    unsettled.add(destinationNode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 83:</strong> Adds destinationNode to the unsettled set (if it's not already there). This ensures it will be processed later. Adding a node that's already in the set has no effect (Set doesn't allow duplicates).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">84</span>                }</span>
+<span class="line"><span class="line-num">85</span>            }</span>
+<span class="line"><span class="line-num">86</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 84-86:</strong> Close inner if, outer if, for loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">87</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 87:</strong> Closes evaluateNeighbours.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">90</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 90:</strong> Closes the class.
+</div>
+</div>
+
+<h3>CameronApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">CameronApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">CameronApp</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Class declaration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="type">int</span>[][] adjacency_matrix = {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Declares a 2D int array (the adjacency matrix). This is a <strong>hardcoded</strong> graph of the 6 Cameron Highlands locations.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>            { <span class="number">0</span>, <span class="number">14</span>, <span class="number">15</span>,  <span class="number">0</span>,  <span class="number">0</span>,  <span class="number">0</span>}, </span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Row for index 0 (Ringlet). 0 to itself, 14 to Tanah Rata, 15 to Brinchang, 0 to others (no direct route).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>            {<span class="number">14</span>,  <span class="number">0</span>, <span class="number">25</span>, <span class="number">27</span>,  <span class="number">0</span>, <span class="number">32</span>}, </span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Row for index 1 (Tanah Rata). Connected to Ringlet(14), Brinchang(25), Kea Farm(27), Kampung Raja(32).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>            {<span class="number">15</span>, <span class="number">25</span>,  <span class="number">0</span>, <span class="number">23</span>, <span class="number">16</span>,  <span class="number">0</span>}, </span>
+<span class="line"><span class="line-num">12</span>            { <span class="number">0</span>, <span class="number">27</span>, <span class="number">23</span>,  <span class="number">0</span>, <span class="number">10</span>, <span class="number">21</span>}, </span>
+<span class="line"><span class="line-num">13</span>            { <span class="number">0</span>,  <span class="number">0</span>, <span class="number">16</span>, <span class="number">10</span>,  <span class="number">0</span>, <span class="number">31</span>}, </span>
+<span class="line"><span class="line-num">14</span>            { <span class="number">0</span>, <span class="number">32</span>,  <span class="number">0</span>, <span class="number">21</span>, <span class="number">31</span>,  <span class="number">0</span>}  </span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 11-14:</strong> Rows for Brinchang(2), Kea Farm(3), Tringkap(4), Kampung Raja(5). The matrix is <strong>symmetric</strong> (mirrored across diagonal) because it's an undirected graph — distance from A to B = distance from B to A.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>        };</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> Closes the matrix initialization.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>        String[] locations = {</span>
+<span class="line"><span class="line-num">18</span>            <span class="string">"Ringlet"</span>,</span>
+<span class="line"><span class="line-num">19</span>            <span class="string">"Tanah Rata"</span>,</span>
+<span class="line"><span class="line-num">20</span>            <span class="string">"Brinchang"</span>,</span>
+<span class="line"><span class="line-num">21</span>            <span class="string">"Kea Farm"</span>,</span>
+<span class="line"><span class="line-num">22</span>            <span class="string">"Tringkap"</span>,</span>
+<span class="line"><span class="line-num">23</span>            <span class="string">"Kampung Raja"</span></span>
+<span class="line"><span class="line-num">24</span>        };</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 17-24:</strong> Array of location names. Index 0 = Ringlet, 1 = Tanah Rata, etc. This maps vertex numbers to human-readable names.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>        Scanner scan = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 26:</strong> Creates Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>        <span class="keyword">try</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 28:</strong> Begins a <span class="term">try-catch</span> block. If any code inside the try throws an exception (e.g., user enters non-integer), it's caught and handled.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">29</span>            <span class="type">int</span> source = scan.<span class="method">nextInt</span>();</span>
+<span class="line"><span class="line-num">30</span>            <span class="type">int</span> destination = scan.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 29-30:</strong> Reads the source and destination vertex indices from the user.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">32</span>            <span class="type">Dijkstra</span> dijkstra = <span class="keyword">new</span> <span class="type">Dijkstra</span>(<span class="number">6</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 32:</strong> Creates a new Dijkstra object for a graph with 6 nodes. This initializes the distances array, sets, and adjacency matrix copy.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>            dijkstra.<span class="method">dijkstra_algorithm</span>(adjacency_matrix, source);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Runs Dijkstra's algorithm on the graph starting from the source vertex. After this call, <code>dijkstra.distances</code> contains the shortest distances from source to ALL other vertices.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>            System.out.<span class="method">println</span>(</span>
+<span class="line"><span class="line-num">37</span>                <span class="string">"The Shortest Path from "</span></span>
+<span class="line"><span class="line-num">38</span>                + locations[source]</span>
+<span class="line"><span class="line-num">39</span>                + <span class="string">" to "</span></span>
+<span class="line"><span class="line-num">40</span>                + locations[destination]</span>
+<span class="line"><span class="line-num">41</span>                + <span class="string">" is "</span></span>
+<span class="line"><span class="line-num">42</span>                + dijkstra.distances[destination]</span>
+<span class="line"><span class="line-num">43</span>                + <span class="string">" km"</span></span>
+<span class="line"><span class="line-num">44</span>            );</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 36-44:</strong> Prints the result: source location name → destination location name → shortest distance in km. Uses <code>locations[source]</code> and <code>locations[destination]</code> to convert vertex indices to names, and <code>dijkstra.distances[destination]</code> to get the computed shortest path distance.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">46</span>        } <span class="keyword">catch</span> (Exception e) {</span>
+</pre></code>
+<div class="explanation">
+<strong>Line 46:</strong> Catches ANY exception (generic Exception type). If anything goes wrong (e.g., ArrayIndexOutOfBounds, InputMismatch), this block runs.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">47</span>            System.out.<span class="method">println</span>(<span class="string">"Invalid Input"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 47:</strong> Prints "Invalid Input" if an exception occurs. This handles cases where the user enters out-of-range vertex numbers or non-integer input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">48</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 48:</strong> Closes the catch block.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">50</span>        scan.<span class="method">close</span>();</span>
+<span class="line"><span class="line-num">51</span>    }</span>
+<span class="line"><span class="line-num">52</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 50-52:</strong> Close Scanner, main method, and class.
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input: <code>0 5</code> (Ringlet to Kampung Raja)<br><br>
+  The graph connections:
+  <div class="graph-vis">
+    Ringlet(0) --14-- Tanah Rata(1) --27-- Kea Farm(3) --21-- Kampung Raja(5)
+        |                 |                |                  |
+       15                25               10                 31
+        |                 |                |                  |
+    Brinchang(2) --23-- Kea Farm(3)   Tringkap(4) --31-- Kampung Raja(5)
+        |                 |
+       16                10
+        |                 |
+    Tringkap(4) --21-- Kampung Raja(5)
+  </div>
+  Shortest path from Ringlet(0) to Kampung Raja(5): 0→1→3→5 = 14+27+21 = <strong>62 km</strong>
+</div>
+
+<div class="algo-step">
+  <strong>Dijkstra's Algorithm Step-by-Step (source = Ringlet/0):</strong><br>
+  1. Initialize: dist[0]=0, dist[1..5]=∞. unsettled = {0}<br>
+  2. Pick min unsettled = 0. Settle 0. Evaluate neighbors: 1(dist=14), 2(dist=15). unsettled={1,2}<br>
+  3. Pick min unsettled = 1(dist=14). Settle 1. Evaluate neighbors: 2(dist=14+25=39>15, keep 15), 3(dist=14+27=41), 5(dist=14+32=46). unsettled={2,3,5}<br>
+  4. Pick min unsettled = 2(dist=15). Settle 2. Evaluate neighbors: 3(dist=15+23=38<41, update to 38), 4(dist=15+16=31). unsettled={3,5,4}<br>
+  5. Pick min unsettled = 4(dist=31). Settle 4. Evaluate neighbors: 3(dist=31+10=41>38, keep 38), 5(dist=31+31=62). unsettled={3,5}<br>
+  6. Pick min unsettled = 3(dist=38). Settle 3. Evaluate neighbors: 5(dist=38+21=59<62, update to 59). unsettled={5}<br>
+  7. Pick min unsettled = 5(dist=59). Settle 5. No new neighbors. unsettled={} → DONE!<br><br>
+  <strong>Final distances: [0, 14, 15, 38, 31, 59]</strong><br>
+  Shortest path from Ringlet to Kampung Raja = 59 km (0→2→4→5 or 0→1→3→5? actually 0→2→4→5 = 15+16+31 = 62, 0→1→3→5 = 14+27+21 = 62, wait, let me recalculate... Actually 0→1→3→5 = 14+27+21 = 62, 0→2→4→5 = 15+16+31 = 62. But step 6 says update 5 to 59 from 3. 0→1→3→5 = 14+27+21 = 62. Hmm 38+21 = 59. Yes! So the shortest is 59 via 0→1→3→5? Wait 38 is dist[3], and 14+27 = 41, but 15+23 = 38. So dist[3] = 38 via 0→2→3. And 38+21 = 59. So path is 0→2→3→5 = 15+23+21 = 59.
+</div>
+
+<div class="behind-scenes" style="margin-top:25px;padding:16px;background:#f0f6fc;border:1px solid #0550ae;border-radius:8px;">
+<h3 style="color:#0550ae;margin-top:0;"> Behind the Scenes &mdash; Dijkstra Execution Trace</h3>
+<p><strong>Input:</strong> source=0 (Ringlet), destination=5 (Kampung Raja)</p>
+
+<h4 style="color:#1a7f37;">Adjacency Matrix</h4>
+<table class="trace-table">
+  <tr><th></th><th>0 Ringlet</th><th>1 T.Rata</th><th>2 Brinchang</th><th>3 K.Farm</th><th>4 Tringkap</th><th>5 K.Raja</th></tr>
+  <tr><td><strong>0 Ringlet</strong></td><td>0</td><td>14</td><td>15</td><td>0</td><td>0</td><td>0</td></tr>
+  <tr><td><strong>1 T.Rata</strong></td><td>14</td><td>0</td><td>25</td><td>27</td><td>0</td><td>32</td></tr>
+  <tr><td><strong>2 Brinchang</strong></td><td>15</td><td>25</td><td>0</td><td>23</td><td>16</td><td>0</td></tr>
+  <tr><td><strong>3 K.Farm</strong></td><td>0</td><td>27</td><td>23</td><td>0</td><td>10</td><td>21</td></tr>
+  <tr><td><strong>4 Tringkap</strong></td><td>0</td><td>0</td><td>16</td><td>10</td><td>0</td><td>31</td></tr>
+  <tr><td><strong>5 K.Raja</strong></td><td>0</td><td>32</td><td>0</td><td>21</td><td>31</td><td>0</td></tr>
+</table>
+
+<h4 style="color:#1a7f37;">Initialization</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td class="highlight"><strong>0</strong></td><td>&infin;</td><td>&infin;</td><td>&infin;</td><td>&infin;</td><td>&infin;</td>
+    <td><strong>{0}</strong></td><td>{}</td>
+  </tr>
+</table>
+<p>Distance to source (0) = 0, all others = infinity. Source added to unsettled.</p>
+
+<h4 style="color:#1a7f37;">Iteration 1 &mdash; Evaluate Node 0 (dist=0)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td><strong>0</strong></td>
+    <td class="highlight"><strong>14</strong></td>
+    <td class="highlight"><strong>15</strong></td>
+    <td>&infin;</td><td>&infin;</td><td>&infin;</td>
+    <td><strong>{1, 2}</strong></td>
+    <td><strong>{0}</strong></td>
+  </tr>
+</table>
+<p><strong>Neighbors updated:</strong> dist[1]=0+14=14, dist[2]=0+15=15. Both added to unsettled.</p>
+
+<h4 style="color:#1a7f37;">Iteration 2 &mdash; Evaluate Node 1 (dist=14, min of unsettled)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td><strong>14</strong></td><td>15</td>
+    <td class="highlight"><strong>41</strong></td><td>&infin;</td>
+    <td class="highlight"><strong>46</strong></td>
+    <td><strong>{2, 3, 5}</strong></td>
+    <td><strong>{0, 1}</strong></td>
+  </tr>
+</table>
+<p><strong>Updated:</strong> dist[3]=14+27=41, dist[5]=14+32=46. Node 2: 14+25=39 &gt; 15 (no change).</p>
+
+<h4 style="color:#1a7f37;">Iteration 3 &mdash; Evaluate Node 2 (dist=15)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td><strong>15</strong></td>
+    <td class="highlight"><strong>38</strong></td>
+    <td class="highlight"><strong>31</strong></td><td>46</td>
+    <td><strong>{3, 5, 4}</strong></td>
+    <td><strong>{0, 1, 2}</strong></td>
+  </tr>
+</table>
+<p><strong>Updated:</strong> dist[3]=15+23=38 (&lt; 41, improved!), dist[4]=15+16=31.</p>
+
+<h4 style="color:#1a7f37;">Iteration 4 &mdash; Evaluate Node 4 (dist=31)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td>15</td><td>38</td><td><strong>31</strong></td><td>46</td>
+    <td><strong>{3, 5}</strong></td>
+    <td><strong>{0, 1, 2, 4}</strong></td>
+  </tr>
+</table>
+<p><strong>Neighbors checked:</strong> 4&rarr;3 = 31+10=41 &gt; 38 (no change), 4&rarr;5 = 31+31=62 &gt; 46 (no change).</p>
+
+<h4 style="color:#1a7f37;">Iteration 5 &mdash; Evaluate Node 3 (dist=38)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td>15</td><td><strong>38</strong></td><td>31</td><td>46</td>
+    <td><strong>{5}</strong></td>
+    <td><strong>{0, 1, 2, 4, 3}</strong></td>
+  </tr>
+</table>
+<p><strong>Neighbors checked:</strong> 3&rarr;5 = 38+21=59 &gt; 46 (no change &mdash; 0&rarr;1&rarr;5=46 is still shorter).</p>
+
+<h4 style="color:#1a7f37;">Iteration 6 &mdash; Evaluate Node 5 (dist=46)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td>15</td><td>38</td><td>31</td><td><strong>46</strong></td>
+    <td><strong>{}</strong></td>
+    <td><strong>{0, 1, 2, 4, 3, 5}</strong></td>
+  </tr>
+</table>
+<p>No unsettled nodes remaining. Algorithm complete!</p>
+
+<h4 style="color:#1a7f37;">Final Result</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>dist[4]</th><th>dist[5]</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td>15</td><td>38</td><td>31</td><td class="highlight"><strong>46</strong></td>
+  </tr>
+</table>
+<p><strong>Shortest path from Ringlet(0) to Kampung Raja(5):</strong> 0 &rarr; 1 &rarr; 5 = 14 + 32 = <strong>46 km</strong></p>
+<div style="font-family:'Consolas',monospace;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:12px;margin:8px 0;font-size:0.9em;">
+  Path breakdown:<br>
+  Ringlet(0) &rarr; Tanah Rata(1): 14 km<br>
+  Tanah Rata(1) &rarr; Kampung Raja(5): 32 km<br>
+  <strong>Total: 46 km</strong>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 3: SIMPLE GRAPH -->
+<!-- ============================================================ -->
+<h2 id="simplegraph">3. Simple Graph (Dijkstra)</h2>
+<p><strong>What it does:</strong> Similar to Cameron but simpler — has a 4-node hardcoded graph with weighted edges. Reads source and destination, runs Dijkstra, prints shortest distance. Uses the <strong>same Dijkstra.java</strong> class.</p>
+
+<h3>SimpleGraph.java</h3>
+
+<div class="code-block">
+<div class="file-label">SimpleGraph.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">SimpleGraph</span> {</span>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 3-4:</strong> Class and main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner sc = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Creates Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="type">int</span> number_of_nodes = <span class="number">4</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> The graph has 4 nodes (fixed, hardcoded).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        <span class="type">int</span>[][] adjacency_matrix = {</span>
+<span class="line"><span class="line-num">9</span>            {<span class="number">0</span>, <span class="number">14</span>, <span class="number">10</span>,  <span class="number">0</span>},  <span class="comment">// node 0</span></span>
+<span class="line"><span class="line-num">10</span>            {<span class="number">14</span>,  <span class="number">0</span>,  <span class="number">0</span>, <span class="number">30</span>}, <span class="comment">// node 1</span></span>
+<span class="line"><span class="line-num">11</span>            {<span class="number">10</span>,  <span class="number">0</span>,  <span class="number">0</span>, <span class="number">20</span>}, <span class="comment">// node 2</span></span>
+<span class="line"><span class="line-num">12</span>            { <span class="number">0</span>, <span class="number">30</span>, <span class="number">20</span>,  <span class="number">0</span>}   <span class="comment">// node 3</span></span>
+<span class="line"><span class="line-num">13</span>        };</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 8-13:</strong> Hardcoded 4×4 adjacency matrix. The graph:
+<div class="graph-vis">
+  0 --14-- 1
+  |        |
+  10      30
+  |        |
+  2 --20-- 3
+</div>
+Node 0 connects to 1 (weight 14) and 2 (weight 10). Node 1 connects to 3 (weight 30). Node 2 connects to 3 (weight 20). The matrix is symmetric (undirected graph).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>        <span class="type">int</span> source = sc.<span class="method">nextInt</span>();</span>
+<span class="line"><span class="line-num">16</span>        <span class="type">int</span> destination= sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 15-16:</strong> Reads source and destination vertices from user.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        <span class="type">Dijkstra</span> d = <span class="keyword">new</span> <span class="type">Dijkstra</span>(number_of_nodes);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Creates a Dijkstra object for 4 nodes.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        d.<span class="method">dijkstra_algorithm</span>(adjacency_matrix, source);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Runs Dijkstra's algorithm from source. After this, d.distances holds shortest paths to all nodes.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>        System.out.<span class="method">println</span>(<span class="string">"The shortest path from "</span> + source + <span class="string">" to "</span> + destination + <span class="string">" is "</span> + d.distances[destination]);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Prints the shortest distance. Uses <code>d.distances[destination]</code> which was computed by Dijkstra's algorithm. No location names here — just vertex numbers.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>    }</span>
+<span class="line"><span class="line-num">24</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 23-24:</strong> Close main method and class.
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input: <code>0 3</code><br>
+  Dijkstra computes: 0→2→3 = 10+20 = 30 (shorter than 0→1→3 = 14+30 = 44)<br>
+  Output: <code>The shortest path from 0 to 3 is 30</code>
+</div>
+
+<div class="behind-scenes" style="margin-top:25px;padding:16px;background:#f0f6fc;border:1px solid #0550ae;border-radius:8px;">
+<h3 style="color:#0550ae;margin-top:0;"> Behind the Scenes &mdash; Dijkstra Execution Trace</h3>
+<p><strong>Input:</strong> source=0, destination=3</p>
+
+<h4 style="color:#1a7f37;">Adjacency Matrix</h4>
+<table class="trace-table">
+  <tr><th></th><th>0</th><th>1</th><th>2</th><th>3</th></tr>
+  <tr><td><strong>0</strong></td><td>0</td><td>14</td><td>10</td><td>0</td></tr>
+  <tr><td><strong>1</strong></td><td>14</td><td>0</td><td>0</td><td>30</td></tr>
+  <tr><td><strong>2</strong></td><td>10</td><td>0</td><td>0</td><td>20</td></tr>
+  <tr><td><strong>3</strong></td><td>0</td><td>30</td><td>20</td><td>0</td></tr>
+</table>
+
+<h4 style="color:#1a7f37;">Initialization</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td class="highlight"><strong>0</strong></td><td>&infin;</td><td>&infin;</td><td>&infin;</td>
+    <td><strong>{0}</strong></td><td>{}</td>
+  </tr>
+</table>
+
+<h4 style="color:#1a7f37;">Iteration 1 &mdash; Evaluate Node 0 (dist=0)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td>
+    <td class="highlight"><strong>14</strong></td>
+    <td class="highlight"><strong>10</strong></td>
+    <td>&infin;</td>
+    <td><strong>{1, 2}</strong></td><td><strong>{0}</strong></td>
+  </tr>
+</table>
+<p><strong>Updated:</strong> dist[1]=0+14=14, dist[2]=0+10=10.</p>
+
+<h4 style="color:#1a7f37;">Iteration 2 &mdash; Evaluate Node 2 (dist=10, min of unsettled)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td><strong>10</strong></td>
+    <td class="highlight"><strong>30</strong></td>
+    <td><strong>{1, 3}</strong></td><td><strong>{0, 2}</strong></td>
+  </tr>
+</table>
+<p><strong>Updated:</strong> dist[3]=10+20=30 via 0&rarr;2&rarr;3.</p>
+
+<h4 style="color:#1a7f37;">Iteration 3 &mdash; Evaluate Node 1 (dist=14)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td><strong>14</strong></td><td>10</td><td>30</td>
+    <td><strong>{3}</strong></td><td><strong>{0, 2, 1}</strong></td>
+  </tr>
+</table>
+<p><strong>Checked:</strong> 1&rarr;3 = 14+30=44 &gt; 30 (no change). Path 0&rarr;1&rarr;3 is longer.</p>
+
+<h4 style="color:#1a7f37;">Iteration 4 &mdash; Evaluate Node 3 (dist=30)</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th><th>unsettled</th><th>settled</th></tr>
+  <tr>
+    <td>0</td><td>14</td><td>10</td><td><strong>30</strong></td>
+    <td><strong>{}</strong></td><td><strong>{0, 2, 1, 3}</strong></td>
+  </tr>
+</table>
+<p>Algorithm complete!</p>
+
+<h4 style="color:#1a7f37;">Final Result</h4>
+<table class="trace-table">
+  <tr><th>dist[0]</th><th>dist[1]</th><th>dist[2]</th><th>dist[3]</th></tr>
+  <tr><td>0</td><td>14</td><td>10</td><td class="highlight"><strong>30</strong></td></tr>
+</table>
+<p>
+  <strong>Shortest path from 0 to 3:</strong>
+  0 &rarr; 2 &rarr; 3 = 10 + 20 = <strong>30</strong><br>
+  <span style="color:#8b949e;">(Compare: 0 &rarr; 1 &rarr; 3 would be 14 + 30 = 44 &mdash; longer!)</span>
+</p>
+</div>
+
+<div class="warning">
+  <strong>Exam Tip — Dijkstra's Algorithm Summary:</strong>
+  <ol>
+    <li><strong>Initialization:</strong> Set distance[source] = 0, all others = ∞ (MAX_VALUE). Add source to unsettled.</li>
+    <li><strong>Extract min:</strong> Pick the unsettled vertex with smallest distance (greedy choice). This is now "settled" — its distance is final.</li>
+    <li><strong>Relax neighbors:</strong> For each unsettled neighbor, check if going through the settled node is shorter. If yes, update distance and add to unsettled.</li>
+    <li><strong>Repeat</strong> steps 2-3 until all nodes are settled (or destination is reached).</li>
+    <li><strong>Requirement:</strong> Edge weights must be <strong>non-negative</strong>.</li>
+    <li><strong>Complexity:</strong> O(V²) with this simple implementation, O(E log V) with a priority queue.</li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<!-- COMPARISON -->
+<!-- ============================================================ -->
+<h2 style="margin-top:50px;">Quick Comparison — All Graph Programs</h2>
+
+<table>
+  <tr>
+    <th>Program</th>
+    <th>Graph Representation</th>
+    <th>Algorithm</th>
+    <th>Purpose</th>
+    <th>Input vs Hardcoded</th>
+  </tr>
+  <tr>
+    <td>Computer Connection</td>
+    <td>Adjacency List (ArrayList of Lists)</td>
+    <td>DFS (recursive)</td>
+    <td>Check if two computers are connected (path exists)</td>
+    <td>User provides vertices, edges, and queries</td>
+  </tr>
+  <tr>
+    <td>Cameron Tourist Route</td>
+    <td>Adjacency Matrix (2D array 6×6)</td>
+    <td>Dijkstra (greedy)</td>
+    <td>Find shortest distance between two Cameron locations in km</td>
+    <td>Graph hardcoded, user picks source &amp; destination</td>
+  </tr>
+  <tr>
+    <td>Simple Graph</td>
+    <td>Adjacency Matrix (2D array 4×4)</td>
+    <td>Dijkstra (greedy)</td>
+    <td>Find shortest distance in a small generic graph</td>
+    <td>Graph hardcoded, user picks source &amp; destination</td>
+  </tr>
+</table>
+
+<div class="warning">
+  <strong>DFS vs Dijkstra — When to use which:</strong>
+  <ul>
+    <li><strong>DFS</strong> = Use when you only need to know IF a path exists (unweighted graph). Simple recursion, O(V+E).</li>
+    <li><strong>Dijkstra</strong> = Use when you need the SHORTEST path in a weighted graph. More complex, O(V²) or O(E log V).</li>
+    <li><strong>BFS</strong> = Use for shortest path in an UNWEIGHTED graph (not shown here, but know it for the exam!).</li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 4 - Queue, Stack & Deque Explained</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #1f2328; line-height: 1.7; padding: 20px; }
+  h1 { color: #0550ae; text-align: center; margin: 30px 0; font-size: 2.2em; border-bottom: 2px solid #d0d7de; padding-bottom: 15px; }
+  h2 { color: #cf222e; margin: 40px 0 20px; font-size: 1.6em; border-left: 4px solid #cf222e; padding-left: 12px; }
+  h3 { color: #1a7f37; margin: 30px 0 15px; font-size: 1.3em; }
+  h4 { color: #0550ae; margin: 20px 0 10px; font-size: 1.1em; }
+  .concept-box { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 20px; margin: 20px 0; }
+  .concept-box h3 { margin-top: 0; }
+  .code-block { background: #fafbfc; border-radius: 8px; margin: 15px 0; overflow-x: auto; position: relative; border: 1px solid #d0d7de; }
+  .code-block .file-label { background: #e8ecf0; color: #0550ae; padding: 6px 15px; font-size: 0.85em; font-weight: 600; border-bottom: 1px solid #d0d7de; border-radius: 8px 8px 0 0; }
+  .code-block pre { margin: 0; padding: 15px; overflow-x: auto; }
+  .code-block code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; }
+  .line { display: block; white-space: pre; }
+  .line:hover { background: #e8ecf0; }
+  .line-num { display: inline-block; width: 30px; text-align: right; margin-right: 15px; color: #8b949e; user-select: none; }
+  .keyword { color: #cf222e; }
+  .type { color: #0550ae; }
+  .string { color: #0a3069; }
+  .comment { color: #6e7781; }
+  .method { color: #953800; }
+  .field { color: #0550ae; }
+  .annotation { color: #8250df; }
+  .number { color: #0550ae; }
+  .explanation { background: #ffffff; border: 1px solid #d0d7de; border-left: 4px solid #0550ae; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 5px 0 15px 0; }
+  .explanation strong { color: #cf222e; }
+  .explanation .term { color: #0550ae; }
+  .nav { position: sticky; top: 0; background: #ffffff; padding: 10px 0; z-index: 100; border-bottom: 1px solid #d0d7de; margin-bottom: 20px; }
+  .nav a { color: #0550ae; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+  .nav a:hover { text-decoration: underline; color: #cf222e; }
+  .tip { background: #ddf4ff; border-left: 4px solid #0550ae; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  .warning { background: #ffebe9; border-left: 4px solid #cf222e; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  ul, ol { margin: 10px 0 10px 25px; }
+  li { margin: 6px 0; }
+  .flow-arrow { color: #0550ae; font-size: 1.5em; text-align: center; margin: 10px 0; }
+  .file-group { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; margin: 15px 0; }
+  .file-group-title { color: #cf222e; font-weight: 600; font-size: 1.1em; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { border: 1px solid #d0d7de; padding: 8px 12px; text-align: left; }
+  th { background: #f6f8fa; color: #0550ae; }
+  .dsa-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0; }
+  .dsa-card { flex: 1; min-width: 200px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; }
+  .dsa-card h4 { margin-top: 0; text-align: center; }
+  .dsa-card.stack { border-top: 3px solid #cf222e; }
+  .dsa-card.queue { border-top: 3px solid #0550ae; }
+  .dsa-card.deque { border-top: 3px solid #1a7f37; }
+  .dsa-card.pqueue { border-top: 3px solid #8250df; }
+  .trace-table { width:100%; border-collapse:collapse; margin:10px 0; font-size:0.85em; font-family:'Consolas',monospace; }
+  .trace-table th { background:#e8ecf0; color:#1f2328; border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table td { border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table .highlight { background:#fff3cd; }
+  .trace-label { color:#0550ae; font-weight:600; margin:15px 0 5px; font-size:0.95em; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="#concepts">Core Concepts</a>
+  <a href="#palindrome">1. Palindrome Phrase</a>
+  <a href="#mydeque">2. MyDeque</a>
+  <a href="#patientqueue">3. Patient Queue (PriorityQueue)</a>
+</div>
+
+<h1>Lab 4 - Queue, Stack &amp; Deque<br><span style="font-size:0.6em;color:#8b949e;">Line-by-Line Code Explanation</span></h1>
+
+<!-- ============================================================ -->
+<!-- CORE CONCEPTS -->
+<!-- ============================================================ -->
+<div class="concept-box" id="concepts">
+<h3>Core Concepts You Need to Know</h3>
+
+<div class="dsa-compare">
+  <div class="dsa-card stack">
+    <h4>Stack (LIFO)</h4>
+    <p><strong>Last-In, First-Out</strong> — like a stack of plates. The last plate you put on top is the first you take off.</p>
+    <p><span class="term">push(x)</span> → add to top<br><span class="term">pop()</span> → remove from top<br><span class="term">peek()</span> → look at top</p>
+  </div>
+  <div class="dsa-card queue">
+    <h4>Queue (FIFO)</h4>
+    <p><strong>First-In, First-Out</strong> — like a line at a cashier. The first person in line gets served first.</p>
+    <p><span class="term">offer(x)</span> → add to back<br><span class="term">poll()</span> → remove from front<br><span class="term">peek()</span> → look at front</p>
+  </div>
+  <div class="dsa-card deque">
+    <h4>Deque (Double-Ended)</h4>
+    <p>Can add/remove from <strong>both ends</strong>. Works as both stack AND queue.</p>
+    <p><span class="term">addFirst/addLast</span><br><span class="term">removeFirst/removeLast</span></p>
+  </div>
+  <div class="dsa-card pqueue">
+    <h4>PriorityQueue</h4>
+    <p>Elements are ordered by <strong>priority</strong> (not insertion order). Highest priority comes out first.</p>
+    <p>Uses <span class="term">compareTo()</span> to decide order.</p>
+  </div>
+</div>
+
+<div class="tip">
+  <strong>Key Insight:</strong> In Java, <code>ArrayDeque</code> is a class that implements both <code>Queue</code> and <code>Deque</code> interfaces. When you store it in a <code>Queue</code> variable, you can only call Queue methods (offer, poll, peek). When stored as <code>Deque</code>, you can also call push/pop (stack operations).
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 1: PALINDROME PHRASE -->
+<!-- ============================================================ -->
+<h2 id="palindrome">1. Palindrome Phrase Checker</h2>
+<p><strong>What it does:</strong> Reads multiple test cases, checks if each phrase is a palindrome (reads same forwards and backwards, ignoring case and non-letters). Uses a <strong>stack</strong> and a <strong>queue</strong> together.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the two files work together</div>
+<p><strong>PalindromeApp.java</strong> → The <em>driver</em> (main) that reads input and runs the checker.</p>
+<p><strong>PalindromeChecker.java</strong> → The <em>logic</em> class that does the actual palindrome checking using a stack and a queue.</p>
+<p class="flow-arrow">&#8659;</p>
+<p>PalindromeApp creates a Scanner, reads <strong>T</strong> test cases. For each test case, it creates a <strong>new PalindromeChecker</strong>, processes the input, then asks "is it a palindrome?" and prints Yes/No.</p>
+</div>
+
+<h3>PalindromeApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">PalindromeApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports the <span class="term">Scanner</span> class. This is a built-in Java utility that lets us read user input from the keyboard (System.in). Without this, we can't get input from the user.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">PalindromeApp</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Declares a public class named <span class="term">PalindromeApp</span>. In Java, every program must have at least one class. The <span class="term">public</span> keyword means other classes can access it. The file <em>must</em> be named <code>PalindromeApp.java</code> because the class is public.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> This is the <span class="term">main method</span> — the <strong>entry point</strong> of every Java program. When you run the program, Java looks for this exact signature (<code>public static void main(String[] args)</code>) and starts executing from here. <span class="term">String[] args</span> lets you pass command-line arguments (optional).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner sc = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Creates a new <span class="term">Scanner</span> object called <code>sc</code> that reads from <span class="term">System.in</span> (the keyboard). <code>System.in</code> is Java's standard input stream. <code>new Scanner(System.in)</code> creates the Scanner, and we store it in a variable of type <code>Scanner</code> named <code>sc</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="type">int</span> T = Integer.<span class="method">parseInt</span>(sc.<span class="method">nextLine</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Reads the first line of input as a String using <span class="term">sc.nextLine()</span>, then converts it to an <span class="term">int</span> using <span class="term">Integer.parseInt()</span>. This <span class="term">T</span> tells us how many test cases (phrases) we'll be checking. <code>nextLine()</code> reads the entire line until the user presses Enter.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; T; i++) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> A <span class="term">for loop</span> that runs <strong>T times</strong>. <code>int i = 0</code> sets the starting counter to 0. <code>i &lt; T</code> means keep looping as long as <code>i</code> is less than <code>T</code>. <code>i++</code> increments <code>i</code> by 1 after each iteration. So if T=3, this loops for i=0, i=1, i=2 (3 times total).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>            String input = sc.<span class="method">nextLine</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Reads one line of text from the user and stores it in a <span class="term">String</span> variable called <code>input</code>. This is the phrase we'll test for being a palindrome.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>            <span class="type">PalindromeChecker</span> checker = <span class="keyword">new</span> <span class="type">PalindromeChecker</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Creates a <strong>new</strong> <span class="term">PalindromeChecker</span> object and stores it in a variable named <code>checker</code>. The <code>new</code> keyword calls the constructor (<code>public PalindromeChecker()</code>) which initializes a fresh stack and queue. We create a new one for each test case to ensure previous test results don't interfere.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>            checker.<span class="method">process</span>(input);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Calls the <span class="term">process()</span> method on our checker, passing the input string. This method (defined in PalindromeChecker.java) will push each letter into the stack AND offer each letter into the queue. The method doesn't return anything (it's <code>void</code>).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>            <span class="keyword">if</span> (checker.<span class="method">isPalindrome</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> Calls <span class="term">checker.isPalindrome()</span> which returns <code>true</code> or <code>false</code>. The <code>if</code> statement checks this boolean result. If true (it IS a palindrome), execute the block on line 16. If false, execute the else block on line 18.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>                System.out.<span class="method">println</span>(<span class="string">"Yes"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Prints the word <span class="string">"Yes"</span> to the console. <span class="term">System.out</span> is Java's standard output stream (the console). <span class="term">println()</span> prints text followed by a newline.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>            } <span class="keyword">else</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> The <span class="term">else</span> block — executes only when <code>isPalindrome()</code> returned <code>false</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>                System.out.<span class="method">println</span>(<span class="string">"No"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Prints <span class="string">"No"</span> to the console because the phrase is NOT a palindrome.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>            }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Closes the if-else block.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> Closes the for loop body. After this, the loop goes back to line 9, increments <code>i</code>, and checks if <code>i &lt; T</code> again.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>        sc.<span class="method">close</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Closes the Scanner to <strong>free system resources</strong>. Always close Scanners when done to prevent resource leaks. After this, we can't read any more input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> Closes the main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Closes the PalindromeApp class.
+</div>
+</div>
+
+<h3>PalindromeChecker.java</h3>
+
+<div class="code-block">
+<div class="file-label">PalindromeChecker.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.ArrayDeque;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports <span class="term">ArrayDeque</span>. This is a resizable-array implementation of the <span class="term">Deque</span> interface. ArrayDeque is faster than Stack and LinkedList for these operations. It can act as both a stack and a queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span><span class="keyword">import</span> java.util.Deque;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Imports the <span class="term">Deque</span> interface. Deque stands for "Double-Ended Queue" — you can add/remove elements from both ends. We'll use it as a <strong>stack</strong> (LIFO).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">import</span> java.util.Queue;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Imports the <span class="term">Queue</span> interface. Queue follows FIFO (First-In, First-Out) — elements are added at the back and removed from the front.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span><span class="keyword">public class</span> <span class="type">PalindromeChecker</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Declares our <span class="term">PalindromeChecker</span> class. This class encapsulates the palindrome-checking logic.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>    <span class="keyword">private</span> <span class="type">Deque</span>&lt;Character&gt; stack;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Declares a <span class="term">private</span> field of type <span class="term">Deque&lt;Character&gt;</span> named <code>stack</code>. <code>private</code> means only this class can access it. <code>&lt;Character&gt;</code> is a <strong>generic type parameter</strong> — it specifies that this Deque will only hold <code>Character</code> objects (not Strings or Integers). <code>Deque</code> is an <strong>interface</strong>, not a class, so we'll need to assign a concrete class to it later (like ArrayDeque).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>    <span class="keyword">private</span> <span class="type">Queue</span>&lt;Character&gt; queue;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Declares a <span class="term">private</span> field of type <span class="term">Queue&lt;Character&gt;</span> named <code>queue</code>. Same concept — only holds Characters, and Queue is an interface.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>    <span class="keyword">public</span> <span class="method">PalindromeChecker</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> This is the <strong>constructor</strong>. A constructor has the same name as the class and no return type (not even void). It runs automatically when you do <code>new PalindromeChecker()</code>. Its job is to initialize the object's fields.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        stack = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Creates a new <span class="term">ArrayDeque</span> object and assigns it to <code>stack</code>. Even though the variable is declared as <code>Deque&lt;Character&gt;</code>, we create an <code>ArrayDeque&lt;&gt;</code> because ArrayDeque <strong>implements</strong> the Deque interface. The <code>stack</code> variable can use all Deque methods like <code>push()</code>, <code>pop()</code>, <code>peek()</code>. The <code>&lt;&gt;</code> (diamond operator) lets Java infer the type from the declaration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>        queue = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Creates ANOTHER ArrayDeque and assigns it to <code>queue</code>. This is the same ArrayDeque class, but because the variable is declared as <code>Queue&lt;Character&gt;</code>, we can <strong>only</strong> call Queue methods (offer, poll, peek) — NOT push/pop. The underlying object is still an ArrayDeque, but the <strong>variable type</strong> restricts what methods we can see.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>    <span class="keyword">public void</span> <span class="method">process</span>(String input) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> Declares a public method named <span class="term">process</span> that takes a <span class="term">String</span> called <code>input</code> and returns nothing (<span class="term">void</span>). This method prepares the data for palindrome checking by filling the stack and queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; input.<span class="method">length</span>(); i++) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> A for loop that iterates through each <strong>character position</strong> in the input string. <code>input.length()</code> returns the number of characters. So if input is "hello", <code>i</code> goes 0, 1, 2, 3, 4 (5 characters total).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>            <span class="type">char</span> ch = input.<span class="method">charAt</span>(i);</span>
+</pre></code>
+<div class="explanation">
+<strong>Line 16:</strong> Gets the character at position <code>i</code> using <span class="term">charAt(i)</span> and stores it in a <span class="term">char</span> variable called <code>ch</code>. <code>char</code> is a primitive type that holds a single character (like 'a', '!', '5'). So for "hello", charAt(0) = 'h', charAt(1) = 'e', etc.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>            <span class="keyword">if</span> (Character.<span class="method">isLetterOrDigit</span>(ch)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> <span class="term">Character.isLetterOrDigit(ch)</span> is a built-in Java method that checks if <code>ch</code> is a letter (a-z, A-Z) or a digit (0-9). This <strong>filters out</strong> spaces, punctuation, and special characters. For palindrome checking, we ignore non-alphanumeric characters — "A man, a plan" becomes "amanAplan".
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>                <span class="type">char</span> lower = Character.<span class="method">toLowerCase</span>(ch);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Converts the character to <strong>lowercase</strong> using <span class="term">Character.toLowerCase(ch)</span>. This makes the palindrome check <strong>case-insensitive</strong> — 'A' and 'a' are treated as the same character. The result is stored in a new <code>char</code> variable called <code>lower</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>                stack.<span class="method">push</span>(lower);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> <span class="term">stack.push(lower)</span> adds the character to the <strong>top</strong> of the stack. Since we're using the Deque as a stack (LIFO), <code>push</code> adds to the front. So "abc" gets pushed as: first 'a', then 'b' on top of 'a', then 'c' on top → the stack reads [c, b, a] from top to bottom. When we pop, we get 'c' first.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>                queue.<span class="method">offer</span>(lower);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> <span class="term">queue.offer(lower)</span> adds the character to the <strong>back</strong> of the queue. Queue is FIFO. So "abc" offers: first 'a' goes in, then 'b' behind 'a', then 'c' behind 'b' → the queue reads [a, b, c] from front to back. When we poll, we get 'a' first.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>            }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Closes the if block. If the character was NOT a letter or digit, we simply skip it (ignoring spaces/punctuation).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Closes the for loop body. After this, the stack contains the input characters in <strong>reverse order</strong> (last letter on top), and the queue contains them in <strong>original order</strong> (first letter at front).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> Closes the process method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>    <span class="keyword">public boolean</span> <span class="method">isPalindrome</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Declares a public method that returns a <span class="term">boolean</span> (true or false). This method compares the stack and queue to determine if the input was a palindrome.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>        <span class="keyword">while</span> (!stack.<span class="method">isEmpty</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 26:</strong> A <span class="term">while loop</span> that keeps running as long as the stack is <strong>not</strong> empty. <code>!stack.isEmpty()</code> means "while the stack has elements". Once we've popped all elements, the loop stops.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>            <span class="type">char</span> s = stack.<span class="method">pop</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> <span class="term">stack.pop()</span> removes and returns the top element of the stack. Since we pushed in order, pop gives us the letters in <strong>reverse order</strong> (from last character to first). We store this in <code>char s</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>            <span class="type">char</span> q = queue.<span class="method">poll</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 28:</strong> <span class="term">queue.poll()</span> removes and returns the front element of the queue. Since we offered in order, poll gives us the letters in <strong>original order</strong> (from first character to last). We store this in <code>char q</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">29</span>            <span class="keyword">if</span> (s != q) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 29:</strong> Compares the character from the stack (reversed order) with the character from the queue (original order). If they are <strong>different</strong> at any position, the input is NOT a palindrome. Example: "aba" → stack: [a,b,a], queue: [a,b,a] → pop 'a', poll 'a' → match. "abc" → stack: [c,b,a], queue: [a,b,c] → pop 'c', poll 'a' → c != a → NOT a palindrome.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">30</span>                <span class="keyword">return false</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 30:</strong> Immediately returns <span class="term">false</span>, stopping the method. As soon as one pair doesn't match, we know the phrase isn't a palindrome, so we don't need to check the rest. This is called <strong>early exit</strong>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">31</span>            }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 31:</strong> Closes the if block.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">32</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 32:</strong> Closes the while loop. If we get here, it means every character matched — the loop ran through all elements and never found a mismatch.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">33</span>        <span class="keyword">return true</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 33:</strong> Returns <span class="term">true</span> because all characters matched. The phrase IS a palindrome.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Closes the isPalindrome method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">35</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 35:</strong> Closes the PalindromeChecker class.
+</div>
+</div>
+
+<!-- ====== PALINDROME BEHIND THE SCENES TRACE ====== -->
+<h3 style="color:#8250df;margin-top:30px;">&#9733; Behind the Scenes — Step-by-Step Execution Trace</h3>
+
+<p>Let's trace what happens when we call <code>checker.process("A man, a plan, a canal, Panama")</code> and then <code>checker.isPalindrome()</code>.</p>
+
+<div class="trace-label">Phase 1 — process() filters and loads the data structures</div>
+<p>The <code>process()</code> method loops through each character of the input. Non-letters (spaces, commas) are <strong>skipped</strong>. Letters are converted to lowercase, then pushed onto the stack and offered into the queue.</p>
+
+<div class="trace-label">Step 1: Character 'A'</div>
+<table class="trace-table">
+  <tr><th>Character</th><th>Is Letter?</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>'A'</td><td>Yes</td><td>lowercase → 'a', push('a'), offer('a')</td><td>[a]</td><td>[a]</td></tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">'A' is a letter → converted to 'a' → added to both structures.</div>
+
+<div class="trace-label">Step 2: Character ' ' (space)</div>
+<table class="trace-table">
+  <tr><th>Character</th><th>Is Letter?</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>' '</td><td class="highlight">No</td><td class="highlight">Skipped (filtered out)</td><td>[a]</td><td>[a]</td></tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">Space is filtered out — it is <strong>not</strong> a letter or digit. Stack and queue unchanged.</div>
+
+<div class="trace-label">Step 3: Characters 'm', 'a', 'n' (from "man")</div>
+<table class="trace-table">
+  <tr><th>Character</th><th>Is Letter?</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>'m'</td><td>Yes</td><td>push('m'), offer('m')</td><td>[m, a]</td><td>[a, m]</td></tr>
+  <tr><td>'a'</td><td>Yes</td><td>push('a'), offer('a')</td><td>[a, m, a]</td><td>[a, m, a]</td></tr>
+  <tr><td>'n'</td><td>Yes</td><td>push('n'), offer('n')</td><td>[n, a, m, a]</td><td>[a, m, a, n]</td></tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">The comma after "man" and its following space will be filtered out next (not shown).</div>
+
+<div class="trace-label">Step 4: Characters 'a', 'p', 'l', 'a', 'n' (from "a plan")</div>
+<table class="trace-table">
+  <tr><th>Input</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, n, a, m, a]</td><td>[a, m, a, n, a]</td></tr>
+  <tr><td>'p'</td><td>push('p'), offer('p')</td><td>[p, a, n, a, m, a]</td><td>[a, m, a, n, a, p]</td></tr>
+  <tr><td>'l'</td><td>push('l'), offer('l')</td><td>[l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a]</td></tr>
+  <tr><td>'n'</td><td>push('n'), offer('n')</td><td>[n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n]</td></tr>
+</table>
+
+<div class="trace-label">Step 5: Characters 'a', 'c', 'a', 'n', 'a', 'l' (from "a canal")</div>
+<table class="trace-table">
+  <tr><th>Input</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a]</td></tr>
+  <tr><td>'c'</td><td>push('c'), offer('c')</td><td>[c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a]</td></tr>
+  <tr><td>'n'</td><td>push('n'), offer('n')</td><td>[n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a]</td></tr>
+  <tr><td>'l'</td><td>push('l'), offer('l')</td><td>[l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l]</td></tr>
+</table>
+
+<div class="trace-label">Step 6: Characters 'p', 'a', 'n', 'a', 'm', 'a' (from "Panama")</div>
+<table class="trace-table">
+  <tr><th>Input</th><th>Action</th><th>Stack (top → bottom)</th><th>Queue (front → back)</th></tr>
+  <tr><td>'p'</td><td>push('p'), offer('p')</td><td>[p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a]</td></tr>
+  <tr><td>'n'</td><td>push('n'), offer('n')</td><td>[n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a]</td></tr>
+  <tr><td>'m'</td><td>push('m'), offer('m')</td><td>[m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m]</td></tr>
+  <tr><td>'a'</td><td>push('a'), offer('a')</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td>[a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td></tr>
+</table>
+
+<div class="trace-label">Summary — After process() completes</div>
+<table class="trace-table">
+  <tr><th>Structure</th><th>Ordering</th><th>Contents</th></tr>
+  <tr><td><strong>Stack</strong></td><td>Top → Bottom (pop order)</td><td>a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a</td></tr>
+  <tr><td><strong>Queue</strong></td><td>Front → Back (poll order)</td><td>a, m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a</td></tr>
+  <tr><td colspan="2"><strong>Characters filtered out (skipped)</strong></td><td>Spaces (6 of them), commas (3 of them) — 9 non-letters total</td></tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">Notice: stack and queue contain the <strong>same sequence</strong>! The stack has it reversed (because push adds to the front), and the queue has it in forward order (because offer adds to the back). They happen to be identical here because the input is a palindrome.</div>
+
+<div class="trace-label">Phase 2 — isPalindrome() comparison loop</div>
+<p>The <code>isPalindrome()</code> method pops from the stack and polls from the queue, comparing each pair. Since the stack gives reversed order and the queue gives forward order, equal pairs mean the string reads the same forwards and backwards.</p>
+
+<div class="trace-label">Comparison Step 1: pop() vs poll()</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'a'</td><td>[m, a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'a'</td><td>—</td></tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">pop() removes the top of the stack → 'a'. poll() removes the front of the queue → 'a'. They match! Continue.</div>
+
+<div class="trace-label">Comparison Step 2: pop() vs poll()</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'m'</td><td>[a, n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'m'</td><td>—</td></tr>
+</table>
+
+<div class="trace-label">Comparison Step 3: pop() vs poll()</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'a'</td><td>[n, a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'a'</td><td>—</td></tr>
+</table>
+
+<div class="trace-label">Comparison Step 4: pop() vs poll() — middle of the phrase</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'n'</td><td>[a, p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'n'</td><td>—</td></tr>
+</table>
+
+<div class="trace-label">Comparison Step 5: pop() vs poll()</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'a'</td><td>[p, l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'a'</td><td>—</td></tr>
+</table>
+
+<div class="trace-label">Comparison Step 6: pop() vs poll() — approaching the center</div>
+<table class="trace-table">
+  <tr><th>Action</th><th>Value Removed</th><th>Stack After</th><th>Queue After</th><th>Match?</th></tr>
+  <tr><td>stack.pop()</td><td class="highlight">'p'</td><td>[l, a, n, a, c, a, n, a, l, p, a, n, a, m, a]</td><td rowspan="2" style="vertical-align:middle;">—</td><td rowspan="2" class="highlight" style="vertical-align:middle;">&#10003; Equal</td></tr>
+  <tr><td>queue.poll()</td><td class="highlight">'p'</td><td>—</td></tr>
+</table>
+
+<div class="trace-label">... and so on for all 21 characters</div>
+<p>The loop continues popping and polling, comparing each pair. <strong>All 21 comparisons match.</strong> The stack eventually becomes empty, the while loop exits, and the method returns:</p>
+
+<div class="trace-label">Final Result</div>
+<table class="trace-table">
+  <tr><th>Method Called</th><th>Return Value</th><th>Meaning</th></tr>
+  <tr><td><code>checker.isPalindrome()</code></td><td class="highlight" style="font-weight:bold;font-size:1.2em;">true</td><td>"A man, a plan, a canal, Panama" IS a palindrome!</td></tr>
+</table>
+
+<div style="background:#ddf4ff;border-left:4px solid #0550ae;padding:10px 14px;margin:12px 0;font-size:0.9em;">
+<strong>Key takeaway:</strong> The stack reversed the sequence (pop gives last letter first), while the queue preserved the original order (poll gives first letter first). Since every pop matched every poll, the forward and backward sequences are identical — that's the definition of a palindrome!
+</div>
+
+<div class="tip">
+  <strong>Why does this work?</strong> A palindrome reads the same forwards and backwards. The queue gives us the <strong>forward</strong> order (FIFO). The stack gives us the <strong>backward</strong> order (LIFO/push-pop). If every character matches at each position, the forward and backward sequences are identical → it's a palindrome!
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 2: MYDEQUE -->
+<!-- ============================================================ -->
+<h2 id="mydeque">2. MyDeque — Basic Queue Operations</h2>
+<p><strong>What it does:</strong> Reads N integers, adds them to a queue, displays the front element, removes two elements, then displays the remaining queue.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the two files work together</div>
+<p><strong>MyDequeApp.java</strong> → The main program that reads input and calls MyDeque methods.</p>
+<p><strong>MyDeque.java</strong> → A custom wrapper class around Java's Queue, providing enqueue, getFront, removeTwo, and display methods.</p>
+</div>
+
+<h3>MyDequeApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">MyDequeApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports Scanner for reading user input. Same as the previous project.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">MyDequeApp</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Declares the <span class="term">MyDequeApp</span> class — the main application class.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> The main method — entry point of the program.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner sc = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Creates a Scanner named <code>sc</code> to read keyboard input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>        <span class="type">MyDeque</span> q = <span class="keyword">new</span> <span class="type">MyDeque</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Creates a new <span class="term">MyDeque</span> object (our custom queue wrapper) named <code>q</code>. This calls the MyDeque constructor which internally creates an ArrayDeque.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        <span class="type">int</span> n = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Reads an integer from the user using <span class="term">sc.nextInt()</span>. This tells us how many numbers will be enqueued. <code>nextInt()</code> reads the next integer token (separated by whitespace).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> A for loop that runs <strong>n times</strong> to read n numbers and add them to the queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>            q.<span class="method">enqueue</span>(sc.<span class="method">nextInt</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Reads an integer from input and immediately passes it to <span class="term">q.enqueue()</span>. <code>sc.nextInt()</code> reads the integer, and its return value becomes the argument to <code>enqueue()</code>. This pattern (calling a method on the return of another method) is called <strong>chaining</strong> / nesting.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Closes the for loop. At this point, all n numbers are in the queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        System.out.<span class="method">println</span>(<span class="string">"Front element: "</span> + q.<span class="method">getFront</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> Prints "Front element: " followed by whatever <span class="term">q.getFront()</span> returns. <code>getFront()</code> peeks at the first element in the queue without removing it. The <code>+</code> operator here <strong>concatenates</strong> (joins) the string with the integer returned by getFront().
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>        q.<span class="method">removeTwo</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Calls <span class="term">removeTwo()</span> on the queue, which removes (polls) the first two elements. The method doesn't return anything.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        System.out.<span class="method">print</span>(<span class="string">"Queue after removing 2 elements: "</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Uses <span class="term">System.out.print()</span> (NOT println) — this prints without a newline at the end. So the next output will appear on the same line.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        q.<span class="method">display</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Calls <span class="term">q.display()</span>, which prints the queue contents using <code>System.out.println(queue.toString())</code>. This appears on the same line as the previous print statement.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>        sc.<span class="method">close</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Closes the Scanner to free resources.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>    }</span>
+<span class="line"><span class="line-num">23</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 22-23:</strong> Close the main method and class.
+</div>
+</div>
+
+<h3>MyDeque.java</h3>
+
+<div class="code-block">
+<div class="file-label">MyDeque.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.ArrayDeque;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports ArrayDeque — the concrete class we'll use to implement the queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span><span class="keyword">import</span> java.util.Queue;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Imports the Queue interface. We'll declare our field as <code>Queue</code> to restrict ourselves to FIFO operations only.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span><span class="keyword">public class</span> <span class="type">MyDeque</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Declares our custom <span class="term">MyDeque</span> class. This is a <strong>wrapper class</strong> — it wraps Java's built-in Queue with a simpler, custom interface.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">private</span> <span class="type">Queue</span>&lt;Integer&gt; queue;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Declares a private field <code>queue</code> of type <span class="term">Queue&lt;Integer&gt;</span>. This means it can only hold Integer objects. The <code>private</code> keyword ensures <strong>encapsulation</strong> — other classes cannot directly access this field; they must use our methods.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>    <span class="keyword">public</span> <span class="method">MyDeque</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Constructor — runs when we do <code>new MyDeque()</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        queue = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Initializes the queue field with a new <span class="term">ArrayDeque</span>. Even though the field is typed as <code>Queue&lt;Integer&gt;</code>, we create an <code>ArrayDeque</code> because ArrayDeque <strong>implements</strong> the Queue interface. The <code>&lt;&gt;</code> diamond infers <code>&lt;Integer&gt;</code> from the declaration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>    <span class="keyword">public void</span> <span class="method">enqueue</span>(<span class="type">int</span> value) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> A public method named <span class="term">enqueue</span> that takes an <code>int</code> called <code>value</code> and returns void. "Enqueue" means to add an element to the back of a queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        queue.<span class="method">add</span>(value);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Calls <span class="term">queue.add(value)</span> to add the integer to the <strong>back</strong> of the queue. <code>add()</code> is a Queue method that inserts the element. Since the queue is declared as <code>Queue&lt;Integer&gt;</code>, the primitive <code>int</code> value gets <strong>autoboxed</strong> into an <code>Integer</code> object automatically by Java.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Closes enqueue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>    <span class="keyword">public int</span> <span class="method">getFront</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> A public method that returns an <code>int</code> — the front element of the queue, without removing it.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>        <span class="keyword">return</span> queue.<span class="method">peek</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> <span class="term">queue.peek()</span> returns the element at the <strong>front</strong> of the queue <strong>without removing it</strong>. If the queue is empty, peek() returns <code>null</code>, but here it would cause a NullPointerException when auto-unboxing to <code>int</code>. In this program, we assume the queue isn't empty. <code>peek()</code> is different from <code>poll()</code> — poll removes the element, peek just looks at it.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Closes getFront.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>    <span class="keyword">public void</span> <span class="method">removeTwo</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> A method that removes the first two elements from the queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> A for loop that runs exactly 2 times (i=0, i=1) to remove two elements. <code>&lt; 2</code> means the loop stops once i reaches 2.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>            <span class="keyword">if</span> (!queue.<span class="method">isEmpty</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Checks if the queue is <strong>not</strong> empty using <span class="term">!queue.isEmpty()</span>. This is a <strong>safety check</strong> — if we try to poll from an empty queue, we'd get <code>null</code>. This prevents errors.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>                queue.<span class="method">poll</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> <span class="term">queue.poll()</span> removes and returns the front element. We don't store the return value because we just want to discard it. After the first poll, the second element becomes the new front. After the second poll, the third element becomes the new front.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>            }</span>
+<span class="line"><span class="line-num">24</span>        }</span>
+<span class="line"><span class="line-num">25</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 23-25:</strong> Close the if, the for loop, and the method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>    <span class="keyword">public void</span> <span class="method">display</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> A method that prints the entire queue contents.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>        System.out.<span class="method">println</span>(queue.<span class="method">toString</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 28:</strong> <span class="term">queue.toString()</span> calls the <code>toString()</code> method on the queue, which returns a String representation like <code>[1, 2, 3]</code>. <span class="term">println()</span> then prints this string followed by a newline. Every Java object has a <code>toString()</code> method, and collections like ArrayDeque override it to show their contents nicely.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">29</span>    }</span>
+<span class="line"><span class="line-num">30</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 29-30:</strong> Close the method and class.
+</div>
+</div>
+
+<div class="warning">
+  <strong>Important:</strong> This class is named "MyDeque" but it actually implements a <strong>Queue</strong> (FIFO), not a Deque (double-ended). The name is misleading — but that's okay, just understand that it uses only Queue operations.
+</div>
+
+<!-- ====== MYDEQUE BEHIND THE SCENES TRACE ====== -->
+<h3 style="color:#8250df;margin-top:30px;">&#9733; Behind the Scenes — Step-by-Step Execution Trace</h3>
+
+<p>Let's trace a full run with input: <code>n = 5</code>, values = <code>10 20 30 40 50</code>.</p>
+
+<div class="trace-label">Phase 1 — Enqueuing all 5 values</div>
+<p>The for loop runs 5 times. Each iteration reads an integer and calls <code>enqueue()</code>, which internally calls <code>queue.add(value)</code> to add to the <strong>back</strong> of the queue.</p>
+
+<div class="trace-label">Step 1: enqueue(10)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Queue State (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>q.enqueue(10)</code></td><td class="highlight">[10]</td><td>Queue was empty. 10 is added as the only element. It is both front and back.</td></tr>
+</table>
+
+<div class="trace-label">Step 2: enqueue(20)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Queue State (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>q.enqueue(20)</code></td><td class="highlight">[10, 20]</td><td>20 is added to the <strong>back</strong> (behind 10). 10 remains at the front.</td></tr>
+</table>
+
+<div class="trace-label">Step 3: enqueue(30)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Queue State (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>q.enqueue(30)</code></td><td class="highlight">[10, 20, 30]</td><td>30 is added to the back. Order: 10 (front) → 20 → 30 (back).</td></tr>
+</table>
+
+<div class="trace-label">Step 4: enqueue(40)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Queue State (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>q.enqueue(40)</code></td><td class="highlight">[10, 20, 30, 40]</td><td>40 joins at the back. FIFO order is preserved: 10 was first in, so it stays first.</td></tr>
+</table>
+
+<div class="trace-label">Step 5: enqueue(50)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Queue State (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>q.enqueue(50)</code></td><td class="highlight">[10, 20, 30, 40, 50]</td><td>All 5 values enqueued. 10 is at the front (first in), 50 is at the back (last in).</td></tr>
+</table>
+
+<div class="trace-label">Phase 2 — Retrieving the front element</div>
+
+<div class="trace-label">Step 6: getFront()</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Return Value</th><th>Queue After (unchanged)</th><th>Explanation</th></tr>
+  <tr><td><code>q.getFront()</code></td><td class="highlight" style="font-weight:bold;">10</td><td>[10, 20, 30, 40, 50]</td><td><code>peek()</code> returns the front element (10) <strong>without removing it</strong>. The queue stays the same.</td></tr>
+</table>
+
+<div class="trace-label">Phase 3 — removeTwo() polls two elements from the front</div>
+
+<div class="trace-label">Step 7: removeTwo() — First poll (i=0)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Value Removed</th><th>Queue State After (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>queue.poll()</code></td><td class="highlight">10</td><td class="highlight">[20, 30, 40, 50]</td><td>10 is removed from the front. 20 is now the new front. The queue shrinks from 5 to 4 elements.</td></tr>
+</table>
+
+<div class="trace-label">Step 8: removeTwo() — Second poll (i=1)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Value Removed</th><th>Queue State After (front → back)</th><th>Explanation</th></tr>
+  <tr><td><code>queue.poll()</code></td><td class="highlight">20</td><td class="highlight">[30, 40, 50]</td><td>20 is removed from the front. 30 is now the new front. The queue shrinks from 4 to 3 elements.</td></tr>
+</table>
+
+<div class="trace-label">Phase 4 — Displaying the final queue</div>
+
+<div class="trace-label">Step 9: display()</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Printed Output</th><th>Queue After (unchanged)</th></tr>
+  <tr><td><code>q.display()</code></td><td class="highlight" style="font-weight:bold;">[30, 40, 50]</td><td>[30, 40, 50]</td></tr>
+</table>
+
+<div class="trace-label">Final Output Summary</div>
+<table class="trace-table">
+  <tr><th>Line</th><th>Printed To Console</th></tr>
+  <tr><td>1</td><td><code>Front element: 10</code></td></tr>
+  <tr><td>2</td><td><code>Queue after removing 2 elements: [30, 40, 50]</code></td></tr>
+</table>
+
+<div style="background:#ddf4ff;border-left:4px solid #0550ae;padding:10px 14px;margin:12px 0;font-size:0.9em;">
+<strong>Key takeaway:</strong> The queue strictly follows FIFO — elements leave in the exact order they arrived. 10 was first in, so it was first out. After removing two elements, the remaining queue contains [30, 40, 50] — the three elements that were added last.
+</div>
+
+<!-- Example execution -->
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input:<br>
+  <code>5</code><br>
+  <code>10 20 30 40 50</code><br><br>
+  Output:<br>
+  Front element: 10<br>
+  Queue after removing 2 elements: [30, 40, 50]
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 3: PATIENT QUEUE SYSTEM -->
+<!-- ============================================================ -->
+<h2 id="patientqueue">3. Patient Queue System (PriorityQueue)</h2>
+<p><strong>What it does:</strong> Reads patient names and priority levels, then serves them in <strong>priority order</strong> (highest priority = lowest number first). Unlike a regular queue (FIFO), PriorityQueue serves based on importance, not arrival order.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the three files work together</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;">
+<div style="flex:1;min-width:180px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:12px;">
+  <strong>Patient.java</strong><br>
+  <small>Model class — stores a patient's name and priority. Implements <code>Comparable</code> to define what "higher priority" means.</small>
+</div>
+<div style="flex:1;min-width:180px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:12px;">
+  <strong>PatientQueue.java</strong><br>
+  <small>Wrapper around PriorityQueue — provides addPatient and serveAllPatients methods.</small>
+</div>
+<div style="flex:1;min-width:180px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:12px;">
+  <strong>PatientApp.java</strong><br>
+  <small>Main program — reads input, creates Patient objects via the queue, then serves them.</small>
+</div>
+</div>
+<p class="flow-arrow">Flow: PatientApp reads data &#8594; calls PatientQueue.addPatient() which creates a new Patient &#8594; PriorityQueue orders Patients by compareTo() &#8594; serveAllPatients() polls in priority order</p>
+</div>
+
+<h3>Patient.java</h3>
+
+<div class="code-block">
+<div class="file-label">Patient.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">public class</span> <span class="type">Patient</span> <span class="keyword">implements</span> <span class="type">Comparable</span>&lt;Patient&gt; {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares the <span class="term">Patient</span> class. It <span class="term">implements Comparable&lt;Patient&gt;</span>, which means Patient objects can be <strong>compared to each other</strong>. This is necessary for PriorityQueue to know how to order patients. The <code>&lt;Patient&gt;</code> specifies that we compare a Patient to another Patient (not to some other type).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    String name;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Declares a field <code>name</code> of type <span class="term">String</span>. Notice there's no <code>private</code> keyword — this uses <strong>default (package-private) access</strong>, meaning other classes in the same package can access it directly. In our case, PatientQueue accesses <code>p.name</code> directly (line 17 of PatientQueue.java).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span>    <span class="type">int</span> priority;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Declares a field <code>priority</code> of type <span class="term">int</span>. Same package-private access. Priority represents how urgent the patient's case is — lower number = higher priority (triage system).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">public</span> <span class="method">Patient</span>(String name, <span class="type">int</span> priority) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Constructor that takes a name and priority. When we do <code>new Patient("John", 1)</code>, this constructor runs and sets the fields.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>        <span class="keyword">this</span>.name = name;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> <span class="term">this.name</span> refers to the <strong>field</strong> of the object (declared on line 2). <code>name</code> (without this) is the <strong>parameter</strong> from the constructor. So <code>this.name = name</code> means "set this object's name field to the value passed as parameter". The <code>this</code> keyword disambiguates between the field and parameter when they have the same name.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="keyword">this</span>.priority = priority;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Same as line 6 but for priority. Sets the object's priority field to the parameter value.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>    <span class="annotation">@Override</span></span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> The <span class="term">@Override</span> annotation tells the compiler "I intend to override a method from a parent class/interface". It's optional but good practice — if you make a typo (e.g., <code>compareToo</code>), the compiler will give an error because you're not actually overriding anything. Here we're overriding the <code>compareTo</code> method from the <code>Comparable</code> interface.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>    <span class="keyword">public int</span> <span class="method">compareTo</span>(Patient other) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> The <span class="term">compareTo</span> method returns an <code>int</code>. It compares <code>this</code> Patient with <code>other</code> Patient. The contract is:
+<ul>
+  <li>Return <strong>negative</strong> if this should come BEFORE other</li>
+  <li>Return <strong>zero</strong> if they are equal</li>
+  <li>Return <strong>positive</strong> if this should come AFTER other</li>
+</ul>
+PriorityQueue uses this method internally to order elements.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="keyword">return</span> Integer.<span class="method">compare</span>(<span class="keyword">this</span>.priority, other.priority);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Uses <span class="term">Integer.compare(this.priority, other.priority)</span> — a static utility method that compares two ints and returns -1, 0, or 1. Since we compare <code>this.priority</code> with <code>other.priority</code>, patients with a <strong>smaller</strong> priority number will come first (because if this.priority=1 and other.priority=3, then 1-3 = -2, meaning this comes BEFORE other). This is called a <strong>natural ascending order</strong>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>    }</span>
+<span class="line"><span class="line-num">14</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 13-14:</strong> Close the method and class.
+</div>
+</div>
+
+<h3>PatientQueue.java</h3>
+
+<div class="code-block">
+<div class="file-label">PatientQueue.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.PriorityQueue;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Imports <span class="term">PriorityQueue</span>. Unlike a regular Queue (FIFO), PriorityQueue orders elements based on their <strong>priority</strong> (determined by compareTo). The element with the smallest value (according to compareTo) is served first.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">PatientQueue</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Declares the PatientQueue class.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">private</span> <span class="type">PriorityQueue</span>&lt;Patient&gt; pq;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Declares a private field <code>pq</code> of type <span class="term">PriorityQueue&lt;Patient&gt;</span>. This queue will only hold Patient objects. The PriorityQueue internally uses a <strong>heap data structure</strong> (specifically a min-heap) to keep the smallest-priority patient at the front.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>    <span class="keyword">public</span> <span class="method">PatientQueue</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        pq = <span class="keyword">new</span> <span class="type">PriorityQueue</span>&lt;&gt;();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Creates a new <span class="term">PriorityQueue</span> and assigns it to <code>pq</code>. The diamond <code>&lt;&gt;</code> infers <code>&lt;Patient&gt;</code>. PriorityQueue's constructor doesn't need a Comparator because Patient implements the Comparable interface (so the queue knows how to order patients).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>    <span class="keyword">public void</span> <span class="method">addPatient</span>(String name, <span class="type">int</span> priority) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Method that takes a name and priority, creates a Patient, and adds it to the queue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>        pq.<span class="method">offer</span>(<span class="keyword">new</span> <span class="type">Patient</span>(name, priority));</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Creates a <strong>new</strong> Patient object using <code>new Patient(name, priority)</code> and immediately passes it to <span class="term">pq.offer()</span>. <code>offer()</code> adds the element to the PriorityQueue at the correct position based on its priority. The Patient constructor runs, then the returned Patient reference is passed to offer(). After this, the queue reorders itself internally to maintain the heap property.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Closes addPatient.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>    <span class="keyword">public void</span> <span class="method">serveAllPatients</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> Method that serves (removes and prints) all patients in priority order.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>        <span class="keyword">while</span> (!pq.<span class="method">isEmpty</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> A while loop that runs as long as the priority queue has elements. <code>!pq.isEmpty()</code> means "while NOT empty". Once all patients are served, the queue is empty and the loop stops.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>            <span class="type">Patient</span> p = pq.<span class="method">poll</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> <span class="term">pq.poll()</span> removes and returns the patient with the <strong>highest priority</strong> (lowest priority number). Because PriorityQueue uses a min-heap, the smallest element is always at the front. We store the removed Patient in variable <code>p</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>            System.out.<span class="method">println</span>(<span class="string">"Serving: "</span> + p.name + <span class="string">" (Priority: "</span> + p.priority + <span class="string">")"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Prints the patient's info. <code>p.name</code> and <code>p.priority</code> access the fields directly (they're package-private, and PatientQueue is in the same package). The <code>+</code> operator concatenates all the strings and variables into one output string. Example output: <code>Serving: John (Priority: 1)</code>
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Closes the while loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>    }</span>
+<span class="line"><span class="line-num">20</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 19-20:</strong> Close the method and class.
+</div>
+</div>
+
+<h3>PatientApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">PatientApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner for input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">PatientApp</span> {</span>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 3-4:</strong> Declare PatientApp class and main method — standard entry point.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner sc = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Creates Scanner for keyboard input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>        <span class="type">PatientQueue</span> pq = <span class="keyword">new</span> <span class="type">PatientQueue</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Creates a new PatientQueue object. Internally, this creates an empty PriorityQueue.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        <span class="type">int</span> n = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Reads an integer — the number of patients to register.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> For loop that runs n times to read each patient's data.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>            String name = sc.<span class="method">next</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> <span class="term">sc.next()</span> reads the <strong>next token</strong> (word) from input, separated by whitespace. Unlike <code>nextLine()</code>, it reads only one word, not the whole line. We store the patient's name in variable <code>name</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>            <span class="type">int</span> priority = sc.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Reads the next integer token — the patient's priority level. For each patient, input is two tokens: a name and a number (e.g., "John 3").
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>            pq.<span class="method">addPatient</span>(name, priority);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Calls <code>addPatient</code> which creates a new Patient from these values and adds it to the PriorityQueue. The queue internally reorders to maintain priority order.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> Loop ends. All patients are now in the queue, sorted by priority.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>        pq.<span class="method">serveAllPatients</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Calls serveAllPatients, which polls (removes) each patient from the queue in priority order and prints their info. The queue becomes empty after this.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        sc.<span class="method">close</span>();</span>
+<span class="line"><span class="line-num">19</span>    }</span>
+<span class="line"><span class="line-num">20</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 18-20:</strong> Close Scanner, method, and class.
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input:<br>
+  <code>3</code><br>
+  <code>John 3</code><br>
+  <code>Alice 1</code><br>
+  <code>Bob 2</code><br><br>
+  Output:<br>
+  Serving: Alice (Priority: 1)<br>
+  Serving: Bob (Priority: 2)<br>
+  Serving: John (Priority: 3)<br>
+  <br>
+  <strong>Notice:</strong> Alice was added second but gets served FIRST because she has priority 1 (highest). The PriorityQueue doesn't follow FIFO — it follows priority order!
+</div>
+
+<!-- ====== PATIENT QUEUE BEHIND THE SCENES TRACE ====== -->
+<h3 style="color:#8250df;margin-top:30px;">&#9733; Behind the Scenes — Step-by-Step Execution Trace</h3>
+
+<p>Let's trace what happens with input: <code>n = 3</code>, patients = <code>Alice 1</code>, <code>Bob 3</code>, <code>Charlie 2</code>.</p>
+
+<div class="trace-label">Phase 1 — Inserting patients into the PriorityQueue</div>
+<p>PriorityQueue uses a <strong>min-heap</strong> internally. The heap is a binary tree where the smallest element (by <code>compareTo</code>) is always at the root. After each <code>offer()</code>, the heap rearranges itself to maintain this property.</p>
+
+<div class="trace-label">Step 1: addPatient("Alice", 1)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Heap Structure</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.offer(new Patient("Alice", 1))</code></td>
+    <td class="highlight">
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Alice(1)]
+</pre>
+    </td>
+    <td>Queue is empty. Alice is added as the root. Priority 1 is the smallest so far.</td>
+  </tr>
+</table>
+
+<div class="trace-label">Step 2: addPatient("Bob", 3)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Heap Structure</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.offer(new Patient("Bob", 3))</code></td>
+    <td class="highlight">
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Alice(1)]
+        /
+   [Bob(3)]
+</pre>
+    </td>
+    <td>Bob (priority 3) is added as a child of Alice. Since 3 > 1, no swap needed. Alice remains the root (highest priority).</td>
+  </tr>
+</table>
+
+<div class="trace-label">Step 3: addPatient("Charlie", 2)</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Heap Structure After Insert</th><th>Heap After Sifting Up</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.offer(new Patient("Charlie", 2))</code></td>
+    <td>
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Alice(1)]
+        /    \
+   [Bob(3)] [Charlie(2)]
+</pre>
+    </td>
+    <td class="highlight">
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Alice(1)]
+        /    \
+[Charlie(2)] [Bob(3)]
+</pre>
+    </td>
+    <td>Charlie (priority 2) is added as a right child. Since 2 &lt; 3 (Bob's priority), Charlie and Bob swap positions in the heap. Alice at priority 1 stays at root.</td>
+  </tr>
+</table>
+
+<div class="trace-label">State after all insertions — Internal heap order</div>
+<table class="trace-table">
+  <tr><th>Polling Order (front → back)</th><th>Queue Contents as array</th></tr>
+  <tr><td class="highlight">[Alice(1), Charlie(2), Bob(3)]</td><td>Index 0: Alice(1), Index 1: Charlie(2), Index 2: Bob(3)</td></tr>
+  <tr><td colspan="2" style="text-align:left;font-size:0.85em;color:#6e7781;">
+    &#9654; The PriorityQueue does <strong>not</strong> store elements in fully sorted order. It only guarantees that the <strong>smallest is at the front</strong> (index 0). The internal array is a heap, not a sorted list.
+  </td></tr>
+</table>
+
+<div class="trace-label">Phase 2 — Serving patients (polling in priority order)</div>
+<p>The <code>serveAllPatients()</code> method loops, calling <code>pq.poll()</code> each time. <code>poll()</code> removes the root of the heap (highest priority), then restructures the heap so the next smallest element rises to the root.</p>
+
+<div class="trace-label">Step 4: First poll() — Serving the highest priority patient</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Patient Removed</th><th>Heap After Poll</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.poll()</code></td>
+    <td class="highlight" style="font-weight:bold;">Alice (Priority: 1)</td>
+    <td>
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Charlie(2)]
+        /
+   [Bob(3)]
+</pre>
+    </td>
+    <td>Alice (priority 1) is removed from the root. The last element (Bob) moves to root, then Charlie (priority 2) sifts up because 2 &lt; 3. Charlie becomes the new root.</td>
+  </tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">Console prints: <code>Serving: Alice (Priority: 1)</code></div>
+
+<div class="trace-label">Step 5: Second poll()</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Patient Removed</th><th>Heap After Poll</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.poll()</code></td>
+    <td class="highlight" style="font-weight:bold;">Charlie (Priority: 2)</td>
+    <td>
+<pre style="margin:0;text-align:left;font-size:0.9em;">
+    [Bob(3)]
+</pre>
+    </td>
+    <td>Charlie (priority 2) is removed. Only Bob (priority 3) remains as the sole element.</td>
+  </tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">Console prints: <code>Serving: Charlie (Priority: 2)</code></div>
+
+<div class="trace-label">Step 6: Third poll()</div>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Patient Removed</th><th>Heap After Poll</th><th>Explanation</th></tr>
+  <tr>
+    <td><code>pq.poll()</code></td>
+    <td class="highlight" style="font-weight:bold;">Bob (Priority: 3)</td>
+    <td><em>empty</em></td>
+    <td>Bob (priority 3) is removed. The queue is now empty. The while loop condition <code>!pq.isEmpty()</code> becomes false, so the loop exits.</td>
+  </tr>
+</table>
+<div style="font-size:0.85em;color:#6e7781;">Console prints: <code>Serving: Bob (Priority: 3)</code></div>
+
+<div class="trace-label">Final Output Comparison: Insertion Order vs. Service Order</div>
+<table class="trace-table">
+  <tr><th>Order</th><th>Insertion (Order Added)</th><th>Service (Order Polled)</th><th>Why?</th></tr>
+  <tr>
+    <td>1st</td>
+    <td>Alice (Priority: 1)</td>
+    <td class="highlight" style="font-weight:bold;">Alice (Priority: 1)</td>
+    <td>Alice has the <strong>highest</strong> priority (lowest number = 1), so she's served first.</td>
+  </tr>
+  <tr>
+    <td>2nd</td>
+    <td>Bob (Priority: 3)</td>
+    <td class="highlight" style="font-weight:bold;">Charlie (Priority: 2)</td>
+    <td>Even though Bob was added <strong>before</strong> Charlie, Charlie has <strong>better priority</strong> (2 &lt; 3), so Charlie jumps ahead.</td>
+  </tr>
+  <tr>
+    <td>3rd</td>
+    <td>Charlie (Priority: 2)</td>
+    <td class="highlight" style="font-weight:bold;">Bob (Priority: 3)</td>
+    <td>Bob has the lowest priority (3), so he's served last — even though he was added second.</td>
+  </tr>
+</table>
+
+<div style="background:#ffebe9;border-left:4px solid #cf222e;padding:10px 14px;margin:12px 0;font-size:0.9em;">
+<strong>Critical insight:</strong> PriorityQueue does <strong>NOT</strong> follow FIFO! Bob was added before Charlie, but Charlie was served before Bob. The service order is determined entirely by <code>compareTo()</code> — lower priority number = served first. This is why the Comparable interface matters: it tells the PriorityQueue how to determine which element is "smaller" (higher priority).
+</div>
+
+<!-- ============================================================ -->
+<!-- SUMMARY TABLE -->
+<!-- ============================================================ -->
+<h2 style="margin-top:50px;">Quick Comparison of the 3 Programs</h2>
+
+<table>
+  <tr>
+    <th>Program</th>
+    <th>Data Structure(s) Used</th>
+    <th>Key Concept</th>
+    <th>Input/Output</th>
+  </tr>
+  <tr>
+    <td>Palindrome Phrase</td>
+    <td>Stack (Deque.push/pop) + Queue (offer/poll)</td>
+    <td>Compare reversed order vs original order using LIFO + FIFO</td>
+    <td>T test cases, each line = phrase, output Yes/No</td>
+  </tr>
+  <tr>
+    <td>MyDeque</td>
+    <td>Queue (ArrayDeque)</td>
+    <td>Basic queue operations: enqueue, peek, poll, display</td>
+    <td>N integers, output front and remaining after removing 2</td>
+  </tr>
+  <tr>
+    <td>Patient Queue</td>
+    <td>PriorityQueue</td>
+    <td>Priority-based ordering using Comparable interface and compareTo()</td>
+    <td>N patients (name + priority), output in priority order</td>
+  </tr>
+</table>
+
+<div class="warning">
+  <strong>Exam Tip:</strong> Know these key differences:
+  <ul>
+    <li><strong>Stack</strong> = LIFO (push/pop) — last in, first out</li>
+    <li><strong>Queue</strong> = FIFO (offer/poll) — first in, first out</li>
+    <li><strong>PriorityQueue</strong> = Ordered by priority (not insertion order)</li>
+    <li><strong>Deque</strong> = Double-ended — can do both stack and queue operations</li>
+    <li><strong>ArrayDeque</strong> = The actual class that can be used as Queue, Deque, or Stack</li>
+  </ul>
+</div>
+
+</body>
+</html>

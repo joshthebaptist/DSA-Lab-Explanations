@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Tree - BST (Binary Search Tree) Explained</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #1f2328; line-height: 1.7; padding: 20px; }
+  h1 { color: #0550ae; text-align: center; margin: 30px 0; font-size: 2.2em; border-bottom: 2px solid #d0d7de; padding-bottom: 15px; }
+  h2 { color: #cf222e; margin: 40px 0 20px; font-size: 1.6em; border-left: 4px solid #cf222e; padding-left: 12px; }
+  h3 { color: #1a7f37; margin: 30px 0 15px; font-size: 1.3em; }
+  h4 { color: #0550ae; margin: 20px 0 10px; font-size: 1.1em; }
+  .concept-box { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 20px; margin: 20px 0; }
+  .concept-box h3 { margin-top: 0; }
+  .code-block { background: #fafbfc; border-radius: 8px; margin: 15px 0; overflow-x: auto; border: 1px solid #d0d7de; }
+  .code-block .file-label { background: #e8ecf0; color: #0550ae; padding: 6px 15px; font-size: 0.85em; font-weight: 600; border-bottom: 1px solid #d0d7de; border-radius: 8px 8px 0 0; }
+  .code-block pre { margin: 0; padding: 15px; overflow-x: auto; }
+  .code-block code { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; }
+  .line { display: block; white-space: pre; }
+  .line:hover { background: #e8ecf0; }
+  .line-num { display: inline-block; width: 30px; text-align: right; margin-right: 15px; color: #8b949e; user-select: none; }
+  .keyword { color: #cf222e; }
+  .type { color: #0550ae; }
+  .string { color: #0a3069; }
+  .comment { color: #6e7781; }
+  .method { color: #953800; }
+  .field { color: #0550ae; }
+  .annotation { color: #8250df; }
+  .number { color: #0550ae; }
+  .explanation { background: #ffffff; border: 1px solid #d0d7de; border-left: 4px solid #0550ae; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 5px 0 15px 0; }
+  .explanation strong { color: #cf222e; }
+  .explanation .term { color: #0550ae; }
+  .nav { position: sticky; top: 0; background: #ffffff; padding: 10px 0; z-index: 100; border-bottom: 1px solid #d0d7de; margin-bottom: 20px; }
+  .nav a { color: #0550ae; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+  .nav a:hover { text-decoration: underline; color: #cf222e; }
+  .tip { background: #ddf4ff; border-left: 4px solid #0550ae; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  .warning { background: #ffebe9; border-left: 4px solid #cf222e; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-size: 0.95em; }
+  ul, ol { margin: 10px 0 10px 25px; }
+  li { margin: 6px 0; }
+  .flow-arrow { color: #0550ae; font-size: 1.5em; text-align: center; margin: 10px 0; }
+  .file-group { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; margin: 15px 0; }
+  .file-group-title { color: #cf222e; font-weight: 600; font-size: 1.1em; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { border: 1px solid #d0d7de; padding: 8px 12px; text-align: left; }
+  th { background: #f6f8fa; color: #0550ae; }
+  .tree-diagram { font-family: 'Consolas', monospace; line-height: 1.4; margin: 15px 0; padding: 15px; background: #fafbfc; border-radius: 8px; white-space: pre; overflow-x: auto; color: #1a7f37; border: 1px solid #d0d7de; }
+  .vis { display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0; }
+  .vis-card { flex: 1; min-width: 200px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; }
+  .vis-card h4 { margin-top: 0; text-align: center; }
+  .vis-card.preorder { border-top: 3px solid #cf222e; }
+  .vis-card.inorder { border-top: 3px solid #0550ae; }
+  .vis-card.postorder { border-top: 3px solid #1a7f37; }
+  .trace-table { width:100%; border-collapse:collapse; margin:10px 0; font-size:0.85em; font-family:'Consolas',monospace; }
+  .trace-table th { background:#e8ecf0; color:#1f2328; border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table td { border:1px solid #d0d7de; padding:6px 10px; text-align:center; }
+  .trace-table .highlight { background:#fff3cd; }
+  .trace-label { color:#0550ae; font-weight:600; margin:15px 0 5px; font-size:0.95em; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="#concepts">BST Core Concepts</a>
+  <a href="#warehouse">1. Warehouse Inventory</a>
+  <a href="#movie">2. Movie Recommendation</a>
+  <a href="#concordance">3. Text Concordance (Unique Words)</a>
+</div>
+
+<h1>Lab Tree - Binary Search Tree (BST)<br><span style="font-size:0.6em;color:#8b949e;">Line-by-Line Code Explanation</span></h1>
+
+<!-- ============================================================ -->
+<!-- BST CORE CONCEPTS -->
+<!-- ============================================================ -->
+<div class="concept-box" id="concepts">
+<h3>What is a Binary Search Tree (BST)?</h3>
+
+<p>A BST is a tree data structure where each <strong>node</strong> has at most <strong>2 children</strong> (left and right), and they follow a special ordering rule:</p>
+
+<ul>
+  <li><strong>Left child</strong> → contains values <strong>smaller</strong> than the parent</li>
+  <li><strong>Right child</strong> → contains values <strong>larger</strong> than the parent</li>
+  <li>No duplicate values (in these labs)</li>
+</ul>
+
+<div class="tree-diagram">
+        50
+       /  \
+     30    70
+    /  \     \
+   20   40    80
+</div>
+
+<p>This ordering makes searching <strong>very fast</strong> — at each node, you decide to go left or right, eliminating half the remaining tree. This is O(log n) on average.</p>
+
+<div class="vis">
+  <div class="vis-card preorder">
+    <h4>Pre-order Traversal</h4>
+    <p><strong>Root → Left → Right</strong></p>
+    <p>Visit node FIRST, then left subtree, then right subtree.</p>
+    <p><small>Used for: copying the tree</small></p>
+  </div>
+  <div class="vis-card inorder">
+    <h4>In-order Traversal</h4>
+    <p><strong>Left → Root → Right</strong></p>
+    <p>Visit left subtree FIRST, then node, then right subtree.</p>
+    <p><small>Gives nodes in <strong>sorted ascending order</strong>!</small></p>
+  </div>
+  <div class="vis-card postorder">
+    <h4>Post-order Traversal</h4>
+    <p><strong>Left → Right → Root</strong></p>
+    <p>Visit left subtree, then right subtree, then node LAST.</p>
+    <p><small>Used for: deleting the tree</small></p>
+  </div>
+</div>
+
+<div class="tip">
+  <strong>Key Insight:</strong> All BST operations (insert, search, delete) use the same pattern: start at root, compare the value, go left if smaller, go right if larger, recurse until you find null (insert here) or the value (search found it). This is called a <strong>recursive</strong> approach — a method that calls itself.
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PROJECT 1: WAREHOUSE INVENTORY SYSTEM -->
+<!-- ============================================================ -->
+<h2 id="warehouse">1. Warehouse Inventory System (BST)</h2>
+<p><strong>What it does:</strong> Reads inventory item codes (integers), stores them in a BST, displays them in ascending order, searches for a specific code, and finds the smallest/largest code.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the three files work together</div>
+<p><strong>Node.java</strong> → Defines what a single tree node looks like (itemCode + left/right child references).</p>
+<p><strong>BinarySearchTree.java</strong> → The BST logic — insert, search, display (inorder), find min/max.</p>
+<p><strong>InventoryApp.java</strong> → The main program that reads input and calls BST methods.</p>
+<p class="flow-arrow">InventoryApp reads N codes &#8594; inserts each into BST &#8594; displays sorted &#8594; searches &#8594; finds min &amp; max</p>
+</div>
+
+<h3>Node.java</h3>
+
+<div class="code-block">
+<div class="file-label">Node.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">class</span> <span class="type">Node</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares the <span class="term">Node</span> class. Note it's NOT <code>public</code> — it has <strong>default (package-private)</strong> access, meaning only classes in the same package can use it. This is fine since the other classes are in the same file/package. Each Node represents one element in the BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    <span class="type">int</span> itemCode;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Declares an <span class="term">int</span> field called <code>itemCode</code> — the data stored in this node. In a BST, this is the value we compare to decide where to place the node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span>    <span class="type">Node</span> left, right;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Declares TWO fields of type <span class="term">Node</span>: <code>left</code> and <code>right</code>. These are <strong>references</strong> to the left child node and right child node. If a child doesn't exist, the value is <code>null</code>. This is what makes it a "tree" — each node points to its children.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">public</span> <span class="method">Node</span>(<span class="type">int</span> itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Constructor that takes an <code>int</code> itemCode. This runs when we do <code>new Node(itemCode)</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>        <span class="keyword">this</span>.itemCode = itemCode;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Sets <code>this.itemCode</code> (the field) to the <code>itemCode</code> (parameter). <code>this</code> refers to the current object being constructed.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        left = right = <span class="keyword">null</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Initializes both <code>left</code> and <code>right</code> to <span class="term">null</span>. This means a new node has no children yet — it's a <strong>leaf node</strong>. Children will be assigned later when we insert more values. The expression <code>left = right = null</code> is evaluated right-to-left: first <code>right = null</code>, then <code>left = right</code> (which is null).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>    }</span>
+<span class="line"><span class="line-num">9</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 8-9:</strong> Close constructor and class.
+</div>
+</div>
+
+<h3>BinarySearchTree.java</h3>
+
+<div class="code-block">
+<div class="file-label">BinarySearchTree.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">public class</span> <span class="type">BinarySearchTree</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares the <span class="term">BinarySearchTree</span> class — this is the main data structure.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    <span class="keyword">private</span> <span class="type">Node</span> root;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Declares a private field <code>root</code> of type <span class="term">Node</span>. This is the <strong>topmost node</strong> of the tree. If the tree is empty, root is <code>null</code>. Every operation (insert, search, display) starts from the root.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public void</span> <span class="method">insert</span>(<span class="type">int</span> itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Public method to insert a new item code. This is the <strong>public interface</strong> — the user just calls <code>insert(value)</code> without worrying about recursion or the root.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        root = insertRec(root, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Calls the private recursive method <span class="term">insertRec</span>, passing the current root and the value. The returned Node becomes the <strong>new root</strong>. Why update root? If the tree was empty (root was null), insertRec returns a new Node, and root needs to point to it. This pattern (public method calling private recursive method) is very common in BST implementations.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Closes insert.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>    <span class="keyword">private</span> <span class="type">Node</span> <span class="method">insertRec</span>(<span class="type">Node</span> node, <span class="type">int</span> itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Private recursive method. Takes a <span class="term">Node</span> (current position in the tree) and the <code>itemCode</code> to insert. Returns a Node — this is the (possibly new) subtree root. <strong>Recursive</strong> means this method calls itself on smaller subtrees.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        <span class="keyword">if</span> (node == <span class="keyword">null</span>) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> <strong>Base case</strong> of recursion. If <code>node</code> is null, we've reached an empty spot where the new node should go. This is where recursion stops.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>            <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Node</span>(itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Creates a <strong>new Node</strong> with the given itemCode and returns it. This new node becomes the child of the parent that called this method. For example, if the parent's left was null and we called insertRec(null, 30), we return new Node(30), and the parent sets <code>node.left = that new node</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Closes the null check.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="keyword">if</span> (itemCode &lt; node.itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> BST rule: if the new value is <strong>less than</strong> the current node's value, it goes in the <strong>left subtree</strong>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>            node.left = insertRec(node.left, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Recursively calls <span class="term">insertRec</span> on the <strong>left child</strong>. The result (which could be a new node if left was null, or the same left child if not) is assigned back to <code>node.left</code>. This is the "wiring" — we update the left child reference with whatever insertRec returns.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        } <span class="keyword">else if</span> (itemCode &gt; node.itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> If the new value is <strong>greater than</strong> the current node's value, it goes in the <strong>right subtree</strong>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>            node.right = insertRec(node.right, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> Recursively calls insertRec on the right child and updates the right child reference. Same logic as line 13 but going right.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>        } <span class="keyword">else</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> The <code>else</code> case — when <code>itemCode == node.itemCode</code>. This means the value <strong>already exists</strong> in the tree (duplicate).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>            System.out.<span class="method">println</span>(<span class="string">"Duplicate item code: "</span> + itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Prints a message saying the item code is a duplicate. In this BST, duplicates are <strong>not allowed</strong> — we just print a warning and don't insert anything.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Closes the if-else.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        <span class="keyword">return</span> node;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Returns the (unchanged) node. This is important — the parent caller assigned this to its left or right field. If we didn't return, the parent would set its child to <code>null</code> and break the tree! The return value "bubbles up" through the recursive calls.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> Closes insertRec.
+</div>
+
+<pre><code>
+<span class="line"><span class="line-num">22</span>    <span class="keyword">public void</span> <span class="method">displayAscendingOrder</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Public method to display all item codes in <strong>ascending</strong> (sorted) order. Uses <strong>in-order traversal</strong> (Left → Root → Right).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>        displayAscendingOrderRec(root);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> Calls the private recursive version starting from root. Same public/private pattern as insert.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Closes displayAscendingOrder.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>    <span class="keyword">private void</span> <span class="method">displayAscendingOrderRec</span>(<span class="type">Node</span> node) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 26:</strong> Private recursive method for in-order traversal. Takes a Node (current position) and recursively visits left, then prints the node, then visits right.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>        <span class="keyword">if</span> (node != <span class="keyword">null</span>) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> <strong>Guard clause</strong> — only proceed if the node is not null. If null, we're at a dead end, so we just return (do nothing). This is the base case.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>            displayAscendingOrderRec(node.left);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 28:</strong> Recursively visit the <strong>left subtree first</strong>. This ensures all smaller values are printed BEFORE the current node. The recursion goes all the way to the leftmost node (smallest value), then starts printing.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">29</span>            System.out.<span class="method">print</span>(node.itemCode + <span class="string">" "</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 29:</strong> Prints the current node's itemCode followed by a space. Uses <code>print()</code> (not println) so everything stays on one line with spaces between values.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">30</span>            displayAscendingOrderRec(node.right);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 30:</strong> After printing the current node, recursively visit the <strong>right subtree</strong>. This ensures all larger values are printed AFTER the current node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">31</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 31:</strong> Closes the if block. If node was null, nothing happens.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">32</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 32:</strong> Closes the method. The pattern Left → Print → Right = <strong>in-order traversal</strong>, which produces sorted ascending order.
+</div>
+
+<pre><code>
+<span class="line"><span class="line-num">34</span>    <span class="keyword">public boolean</span> <span class="method">search</span>(<span class="type">int</span> itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Public method that returns <code>boolean</code> — whether an item code exists in the tree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">35</span>        <span class="keyword">return</span> searchRec(root, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 35:</strong> Calls the private recursive search and returns its result. Again, the public method is a simple wrapper.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 36:</strong> Closes search.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">38</span>    <span class="keyword">private boolean</span> <span class="method">searchRec</span>(<span class="type">Node</span> node, <span class="type">int</span> itemCode) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 38:</strong> Private recursive search method. Returns true if found, false if not.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">39</span>        <span class="keyword">if</span> (node == <span class="keyword">null</span>) <span class="keyword">return false</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 39:</strong> <strong>Base case 1:</strong> If node is null, we've reached a dead end without finding the value. Return <code>false</code> — the value is not in the tree. This is written without curly braces because it's a single statement (valid Java style).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">40</span>        <span class="keyword">if</span> (itemCode == node.itemCode) <span class="keyword">return true</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 40:</strong> <strong>Base case 2:</strong> If the current node's itemCode equals the value we're searching for, we found it! Return <code>true</code> immediately.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">41</span>        <span class="keyword">if</span> (itemCode &lt; node.itemCode) <span class="keyword">return</span> searchRec(node.left, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 41:</strong> If the searched value is <strong>smaller</strong> than the current node's value, recursively search the <strong>left</strong> subtree. Because in a BST, all smaller values are on the left.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">42</span>        <span class="keyword">return</span> searchRec(node.right, itemCode);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 42:</strong> If we reach here, the value must be <strong>greater</strong> than the current node (since we checked == and <). So recursively search the <strong>right</strong> subtree. No <code>if</code> needed because if it's not null, not equal, and not less — it must be greater.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">43</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 43:</strong> Closes searchRec.
+</div>
+
+<pre><code>
+<span class="line"><span class="line-num">45</span>    <span class="keyword">public int</span> <span class="method">findSmallest</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 45:</strong> Public method that finds the smallest value in the BST. In a BST, the smallest value is the <strong>leftmost</strong> node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">46</span>        <span class="keyword">if</span> (root == <span class="keyword">null</span>) <span class="keyword">return</span> -<span class="number">1</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 46:</strong> If the tree is empty (root is null), return -1 as a sentinel value (meaning "no smallest found"). This prevents a NullPointerException.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">47</span>        <span class="type">Node</span> current = root;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 47:</strong> Creates a temporary variable <code>current</code> that starts at the root. We'll use this to traverse down the left side.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">48</span>        <span class="keyword">while</span> (current.left != <span class="keyword">null</span>) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 48:</strong> Iterative (non-recursive) loop. Keep going left as long as there IS a left child. When <code>current.left == null</code>, we've reached the leftmost node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">49</span>            current = current.left;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 49:</strong> Move current to its left child. Each step goes to a smaller value.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">50</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 50:</strong> Loop ends when current has no left child.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">51</span>        <span class="keyword">return</span> current.itemCode;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 51:</strong> Returns the itemCode of the leftmost node, which is the smallest value in the BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">52</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 52:</strong> Closes findSmallest.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">54</span>    <span class="keyword">public int</span> <span class="method">findLargest</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 54:</strong> Public method that finds the largest value. In a BST, the largest value is the <strong>rightmost</strong> node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">55</span>        <span class="keyword">if</span> (root == <span class="keyword">null</span>) <span class="keyword">return</span> -<span class="number">1</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 55:</strong> Same empty-tree check as findSmallest. Return -1 sentinel.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">56</span>        <span class="type">Node</span> current = root;</span>
+<span class="line"><span class="line-num">57</span>        <span class="keyword">while</span> (current.right != <span class="keyword">null</span>) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 56-57:</strong> Start at root and keep going <strong>right</strong> (where larger values are) until there's no right child.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">58</span>            current = current.right;</span>
+<span class="line"><span class="line-num">59</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 58-59:</strong> Move to the right child each iteration. Stops when current has no right child.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">60</span>        <span class="keyword">return</span> current.itemCode;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 60:</strong> Returns the rightmost node's itemCode — the largest value.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">61</span>    }</span>
+<span class="line"><span class="line-num">62</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 61-62:</strong> Close findLargest and the class.
+</div>
+</div>
+
+<div class="trace-label">Behind the Scenes &mdash; Step-by-Step BST Execution Trace</div>
+<p><strong>Input:</strong> N=5, values=[50, 30, 70, 20, 40], searchCode=40</p>
+
+<h4>Phase 1: Inserting into the BST</h4>
+
+<div class="trace-label">Insert 50 &mdash; Tree was empty</div>
+<table class="trace-table">
+  <tr><th>Step</th><th>Action</th><th>insertRec(node, itemCode)</th><th>Result</th></tr>
+  <tr><td>1</td><td>insert(50)</td><td>root = insertRec(null, 50)</td><td rowspan="2">node == null &rarr; return <strong>new Node(50)</strong></td></tr>
+  <tr><td>2</td><td>insertRec</td><td>node == null &rarr; base case</td></tr>
+  <tr><td colspan="4" style="text-align:left;background:#f6f8fa;"><pre>    50</pre></td></tr>
+</table>
+
+<div class="trace-label">Insert 30 &mdash; 30 &lt; 50, goes left</div>
+<table class="trace-table">
+  <tr><th>Step</th><th>Action</th><th>insertRec(node, itemCode)</th><th>Result</th></tr>
+  <tr><td>1</td><td>insert(30)</td><td>root = insertRec(root=50, 30)</td><td>30 &lt; 50 &rarr; go LEFT</td></tr>
+  <tr><td>2</td><td>insertRec</td><td>insertRec(node=50.left=null, 30)</td><td>node == null &rarr; return <strong>new Node(30)</strong></td></tr>
+  <tr><td>3</td><td>&larr; return</td><td>node.left = new Node(30)</td><td>return node(50) &mdash; unchanged</td></tr>
+  <tr><td colspan="4" style="text-align:left;background:#f6f8fa;"><pre>    50
+   /
+  30</pre></td></tr>
+</table>
+
+<div class="trace-label">Insert 70 &mdash; 70 &gt; 50, goes right</div>
+<table class="trace-table">
+  <tr><th>Step</th><th>Action</th><th>insertRec(node, itemCode)</th><th>Result</th></tr>
+  <tr><td>1</td><td>insert(70)</td><td>root = insertRec(root=50, 70)</td><td>70 &gt; 50 &rarr; go RIGHT</td></tr>
+  <tr><td>2</td><td>insertRec</td><td>insertRec(node=50.right=null, 70)</td><td>node == null &rarr; return <strong>new Node(70)</strong></td></tr>
+  <tr><td>3</td><td>&larr; return</td><td>node.right = new Node(70)</td><td>return node(50)</td></tr>
+  <tr><td colspan="4" style="text-align:left;background:#f6f8fa;"><pre>    50
+   /  \
+  30   70</pre></td></tr>
+</table>
+
+<div class="trace-label">Insert 20 &mdash; 20 &lt; 50 &rarr; left to 30 &rarr; 20 &lt; 30 &rarr; left</div>
+<table class="trace-table">
+  <tr><th>Step</th><th>Action</th><th>insertRec(node, itemCode)</th><th>Result</th></tr>
+  <tr><td>1</td><td>insert(20)</td><td>root = insertRec(root=50, 20)</td><td>20 &lt; 50 &rarr; go LEFT</td></tr>
+  <tr><td>2</td><td>insertRec</td><td>insertRec(node=30, 20)</td><td>20 &lt; 30 &rarr; go LEFT</td></tr>
+  <tr><td>3</td><td>insertRec</td><td>insertRec(node=30.left=null, 20)</td><td>node == null &rarr; return <strong>new Node(20)</strong></td></tr>
+  <tr><td>4</td><td>&larr; return</td><td>node(30).left = new Node(20)</td><td>return node(30)</td></tr>
+  <tr><td>5</td><td>&larr; return</td><td>node(50).left = node(30) (unchanged)</td><td>return node(50)</td></tr>
+  <tr><td colspan="4" style="text-align:left;background:#f6f8fa;"><pre>      50
+     /  \
+    30   70
+   /
+  20</pre></td></tr>
+</table>
+
+<div class="trace-label">Insert 40 &mdash; 40 &lt; 50 &rarr; left to 30 &rarr; 40 &gt; 30 &rarr; right</div>
+<table class="trace-table">
+  <tr><th colspan="4">Recursive Call Stack for insertRec(node=50, 40)</th></tr>
+  <tr><th>Depth</th><th>Call</th><th>Comparison</th><th>What Happens</th></tr>
+  <tr class="highlight">
+    <td>0</td><td>insertRec(node=50, 40)</td><td>40 &lt; 50</td>
+    <td>Calls insertRec(node=50.left=30, 40)<br>Waits for return...</td>
+  </tr>
+  <tr class="highlight">
+    <td>1</td><td>insertRec(node=30, 40)</td><td>40 &gt; 30</td>
+    <td>Calls insertRec(node=30.right=null, 40)<br>Waits for return...</td>
+  </tr>
+  <tr class="highlight">
+    <td>2</td><td>insertRec(node=null, 40)</td><td>&mdash;</td>
+    <td>&#x1f6a9 <strong>BASE CASE</strong>: node == null<br>Creates <strong>new Node(40)</strong>, returns it &uarr;</td>
+  </tr>
+  <tr class="highlight">
+    <td>1</td><td>&larr; back in insertRec(node=30, 40)</td><td>&mdash;</td>
+    <td>node.right = new Node(40)<br>Returns node(30) &uarr;</td>
+  </tr>
+  <tr class="highlight">
+    <td>0</td><td>&larr; back in insertRec(node=50, 40)</td><td>&mdash;</td>
+    <td>node.left = node(30) (unchanged)<br>Returns node(50) as new root</td>
+  </tr>
+</table>
+<p><strong>Final Tree:</strong></p>
+<pre class="tree-diagram">
+      50
+     /  \
+    30   70
+   /  \
+  20   40
+</pre>
+
+<h4>Phase 2: In-order Traversal (Ascending Display)</h4>
+<table class="trace-table">
+  <tr><th>Step</th><th>Current Node</th><th>Action</th><th>Output</th></tr>
+  <tr><td>1</td><td>50</td><td>Go LEFT &rarr; 30</td><td>&mdash;</td></tr>
+  <tr><td>2</td><td>30</td><td>Go LEFT &rarr; 20</td><td>&mdash;</td></tr>
+  <tr><td>3</td><td>20</td><td>20.left == null &rarr; <strong>PRINT 20</strong> &rarr; 20.right == null &rarr; return</td><td><strong>20</strong></td></tr>
+  <tr><td>4</td><td>30</td><td>Left done &rarr; <strong>PRINT 30</strong> &rarr; Go RIGHT &rarr; 40</td><td><strong>30</strong></td></tr>
+  <tr><td>5</td><td>40</td><td>40.left == null &rarr; <strong>PRINT 40</strong> &rarr; 40.right == null &rarr; return</td><td><strong>40</strong></td></tr>
+  <tr><td>6</td><td>50</td><td>Left subtree done &rarr; <strong>PRINT 50</strong> &rarr; Go RIGHT &rarr; 70</td><td><strong>50</strong></td></tr>
+  <tr><td>7</td><td>70</td><td>70.left == null &rarr; <strong>PRINT 70</strong> &rarr; 70.right == null &rarr; return</td><td><strong>70</strong></td></tr>
+  <tr><td colspan="4"><strong>Final Output:</strong> 20 30 40 50 70 &#x2705;</td></tr>
+</table>
+<p>Rule: <strong>Left &rarr; Print &rarr; Right</strong> = in-order = sorted ascending order</p>
+
+<h4>Phase 3: Search for itemCode = 40</h4>
+<table class="trace-table">
+  <tr><th>Step</th><th>Current Node</th><th>Comparison</th><th>Action</th></tr>
+  <tr><td>1</td><td>50</td><td>40 &lt; 50</td><td>Go LEFT &rarr; 30</td></tr>
+  <tr><td>2</td><td>30</td><td>40 &gt; 30</td><td>Go RIGHT &rarr; 40</td></tr>
+  <tr class="highlight"><td>3</td><td>40</td><td>40 == 40 &#x2705;</td><td><strong>FOUND!</strong> Return true</td></tr>
+</table>
+<p><strong>Search Path:</strong> 50 &rarr; 30 &rarr; 40 <strong>(found!)</strong></p>
+
+<h4>Phase 4: Find Smallest &amp; Largest</h4>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Path (current variable)</th><th>Result</th></tr>
+  <tr><td>findSmallest()</td><td>current=50 &rarr; current.left=30 &rarr; current.left=20 &rarr; current.left=<strong>null &rarr; STOP</strong></td><td><strong>20</strong></td></tr>
+  <tr><td>findLargest()</td><td>current=50 &rarr; current.right=70 &rarr; current.right=<strong>null &rarr; STOP</strong></td><td><strong>70</strong></td></tr>
+</table>
+<p><strong>Algorithm:</strong> To find min, keep going LEFT. To find max, keep going RIGHT.</p>
+
+<h3>InventoryApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">InventoryApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner for input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span><span class="keyword">public class</span> <span class="type">InventoryApp</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Declares the main application class.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Main method — program entry point.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        Scanner input = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Creates Scanner called <code>input</code>.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="type">BinarySearchTree</span> inventoryBST = <span class="keyword">new</span> <span class="type">BinarySearchTree</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Creates a new <span class="term">BinarySearchTree</span> object called <code>inventoryBST</code>. The tree starts empty (root = null).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="type">int</span> N = input.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Reads the number of inventory codes to insert.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i++) {</span>
+<span class="line"><span class="line-num">15</span>            <span class="type">int</span> code = input.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 14-15:</strong> Loop N times. Each iteration reads one integer code.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>            inventoryBST.<span class="method">insert</span>(code);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Inserts the code into the BST. The insert method traverses the tree and places it in the correct position according to BST rules.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Loop ends. All codes are now in the BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        <span class="type">int</span> searchCode = input.<span class="method">nextInt</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Reads one more integer — the code to search for in the BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>        System.out.<span class="method">println</span>(<span class="string">"\nList of inventory codes: "</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Prints a header. <code>\n</code> is an <strong>escape sequence</strong> — it adds a blank line before the text.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>        inventoryBST.<span class="method">displayAscendingOrder</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 22:</strong> Calls displayAscendingOrder, which performs an in-order traversal and prints all codes in sorted order.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>        System.out.<span class="method">println</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Prints an empty line (just a newline) for spacing.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">26</span>        <span class="keyword">if</span> (inventoryBST.<span class="method">search</span>(searchCode)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 26:</strong> Calls the search method on the BST. Returns true if found, false if not.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>            System.out.<span class="method">println</span>(<span class="string">"Item code "</span> + searchCode + <span class="string">" is found in the inventory."</span>);</span>
+<span class="line"><span class="line-num">28</span>        } <span class="keyword">else</span> {</span>
+<span class="line"><span class="line-num">29</span>            System.out.<span class="method">println</span>(<span class="string">"Item code "</span> + searchCode + <span class="string">" is not found in the inventory."</span>);</span>
+<span class="line"><span class="line-num">30</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 27-30:</strong> Prints the search result. If search returned true, it's found. If false, it's not found.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">32</span>        System.out.<span class="method">println</span>(<span class="string">"\nSmallest item code: "</span> + inventoryBST.<span class="method">findSmallest</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 32:</strong> Calls findSmallest() and prints the result. Note: <code>inventoryBST.findSmallest()</code> is called AGAIN on line 33, but its return value is ignored — this is probably a mistake in the code (unnecessary call).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">33</span>        inventoryBST.<span class="method">findSmallest</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 33:</strong> Calls findSmallest() but <strong>doesn't use the return value</strong>. This is a harmless useless line — it finds the smallest but does nothing with it. The result is discarded.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>        System.out.<span class="method">println</span>(<span class="string">"Largest item code: "</span> + inventoryBST.<span class="method">findLargest</span>());</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> Calls findLargest() and prints the result.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>        input.<span class="method">close</span>();</span>
+<span class="line"><span class="line-num">37</span>    }</span>
+<span class="line"><span class="line-num">38</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 36-38:</strong> Close Scanner, main method, and class.
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input: <code>5  50 30 70 20 40</code> then <code>40</code><br>
+  Tree built:
+  <div class="tree-diagram">
+      50
+     /  \
+    30   70
+   /  \
+  20   40
+  </div>
+  Output:<br>
+  List of inventory codes: 20 30 40 50 70<br>
+  Item code 40 is found in the inventory.<br>
+  Smallest item code: 20<br>
+  Largest item code: 70
+</div>
+
+
+<!-- ============================================================ -->
+<!-- PROJECT 2: MOVIE RECOMMENDATION SYSTEM -->
+<!-- ============================================================ -->
+<h2 id="movie">2. Movie Recommendation System (Binary Decision Tree)</h2>
+<p><strong>What it does:</strong> Uses a binary tree to ask yes/no questions and recommend a movie based on answers. This is NOT a BST (no ordering) — it's a <strong>binary decision tree</strong> where leaf nodes hold movie names and internal nodes hold questions.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the two files work together</div>
+<p><strong>MovieNode.java</strong> → Defines a tree node that holds either a question or a movie recommendation. Has <code>yesBranch</code> and <code>noBranch</code> children.</p>
+<p><strong>MovieRecommendationApp.java</strong> → Builds the decision tree manually, then traverses it based on user answers until reaching a leaf (recommendation).</p>
+</div>
+
+<h3>MovieNode.java</h3>
+
+<div class="code-block">
+<div class="file-label">MovieNode.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">public class</span> <span class="type">MovieNode</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares the MovieNode class. Each node represents either a <strong>question</strong> (internal node) or a <strong>movie recommendation</strong> (leaf node).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    String questionOrRecommendation;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> A String field that stores either a question like "Do you enjoy action movies?" or a movie name like "Futuristic Superhero Movie". The distinction is made by whether the node is a leaf or not.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span>    <span class="type">MovieNode</span> yesBranch;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Reference to the child node when the user answers <strong>"yes"</strong>. If this is a leaf node (movie recommendation), this will be null.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">4</span>    <span class="type">MovieNode</span> noBranch;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 4:</strong> Reference to the child node when the user answers <strong>"no"</strong>. Same logic — null for leaf nodes.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>    <span class="keyword">public</span> <span class="method">MovieNode</span>(String questionOrRecommendation) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 6:</strong> Constructor that takes the question or movie name string.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="keyword">this</span>.questionOrRecommendation = questionOrRecommendation;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Sets the field with the parameter value.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        yesBranch = <span class="keyword">null</span>;</span>
+<span class="line"><span class="line-num">9</span>        noBranch = <span class="keyword">null</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 8-9:</strong> Initializes both branches to null. The branches are connected later using assignment (<code>root.yesBranch = new MovieNode(...)</code>).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 10:</strong> Closes the constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>    <span class="keyword">public boolean</span> <span class="method">isLeaf</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> A helper method that checks if this node is a <strong>leaf</strong> (movie recommendation) vs an internal node (question).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>        <span class="keyword">return</span> yesBranch == <span class="keyword">null</span> &amp;&amp; noBranch == <span class="keyword">null</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Returns <code>true</code> if <strong>both</strong> children are null. A leaf has no children (no questions to ask — it's a final recommendation). If either child exists, it's a question node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>    }</span>
+<span class="line"><span class="line-num">15</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 14-15:</strong> Close the method and class.
+</div>
+</div>
+
+<h3>MovieRecommendationApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">MovieRecommendationApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner for input.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">MovieRecommendationApp</span> {</span>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 3-4:</strong> Class and main method declaration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner input = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Creates Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">7</span>        <span class="type">MovieNode</span> root = buildMovieDecisionTree();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 7:</strong> Calls a static method <span class="term">buildMovieDecisionTree()</span> that creates and returns the root of a pre-built decision tree. This is where the entire tree structure is constructed.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        System.out.<span class="method">println</span>(<span class="string">"Movie Recommendation System"</span>);</span>
+<span class="line"><span class="line-num">10</span>        System.out.<span class="method">println</span>(<span class="string">"---------------------------"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 9-10:</strong> Prints a header/title with a dashed line for formatting.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        <span class="type">MovieNode</span> current = root;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Creates a variable <code>current</code> that starts at the root. We'll update this as we navigate down the tree based on user answers.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        <span class="keyword">while</span> (!current.<span class="method">isLeaf</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> While loop that continues as long as the current node is <strong>NOT</strong> a leaf (i.e., it's a question). Once we reach a leaf (movie recommendation), we stop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>            System.out.<span class="method">print</span>(current.questionOrRecommendation + <span class="string">" (yes/no): "</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> Prints the current question. Uses <code>print()</code> (not println) so the user types their answer on the same line.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>            String answer = input.<span class="method">nextLine</span>().<span class="method">trim</span>().<span class="method">toLowerCase</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Reads the user's answer, then chains two more methods: <span class="term">.trim()</span> removes leading/trailing whitespace, <span class="term">.toLowerCase()</span> converts to lowercase. This way, "YES", "yes ", " Yes " all become "yes". This is called <strong>method chaining</strong> — each method returns a String, and the next method is called on that result.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>            <span class="keyword">if</span> (answer.<span class="method">equals</span>(<span class="string">"yes"</span>)) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Checks if the answer equals "yes" (after cleaning). <span class="term">.equals()</span> compares Strings by value (unlike <code>==</code> which compares references).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>                current = current.yesBranch;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> If yes, move to the <strong>yesBranch</strong> child. This becomes the new current node for the next loop iteration.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>            } <span class="keyword">else if</span> (answer.<span class="method">equals</span>(<span class="string">"no"</span>)) {</span>
+<span class="line"><span class="line-num">21</span>                current = current.noBranch;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 20-21:</strong> If no, move to the <strong>noBranch</strong> child.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">22</span>            } <span class="keyword">else</span> {</span>
+<span class="line"><span class="line-num">23</span>                System.out.<span class="method">println</span>(<span class="string">"Invalid input. Please enter yes or no."</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 22-23:</strong> If the user typed anything other than "yes" or "no", print an error message. Note: <code>current</code> is NOT updated, so the loop asks the same question again.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>            }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Closes the if-else chain.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Loop ends when current is a leaf (isLeaf() returns true).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>        System.out.<span class="method">println</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> Prints a blank line for spacing.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>        System.out.<span class="method">println</span>(<span class="string">"Recommended Movie:"</span>);</span>
+<span class="line"><span class="line-num">29</span>        System.out.<span class="method">println</span>(current.questionOrRecommendation);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 28-29:</strong> Prints the movie recommendation stored in the leaf node's <code>questionOrRecommendation</code> field.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">31</span>        input.<span class="method">close</span>();</span>
+<span class="line"><span class="line-num">32</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 31-32:</strong> Close Scanner and main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">34</span>    <span class="keyword">public static</span> <span class="type">MovieNode</span> <span class="method">buildMovieDecisionTree</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 34:</strong> A <span class="term">static</span> method that builds and returns the entire decision tree. Static means it belongs to the CLASS (not an instance), so we can call it without creating a MovieRecommendationApp object.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>        <span class="type">MovieNode</span> root = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you enjoy action movies?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 36:</strong> Creates the <strong>root</strong> node with the first question: "Do you enjoy action movies?".
+</div>
+<pre><code>
+<span class="line"><span class="line-num">38</span>        root.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you prefer long-duration movies?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 38:</strong> Creates a new node for the "yes" branch of root — the next question if user likes action movies.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">39</span>        root.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you enjoy comedy movies?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 39:</strong> Creates a new node for the "no" branch of root.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">41</span>        root.yesBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you like sci-fi themes?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 41:</strong> Creates a node for "yes → yes": if user likes action AND prefers long-duration movies, ask about sci-fi.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">42</span>        root.yesBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you like war movies?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 42:</strong> "yes → no" path: if user likes action but NOT long-duration, ask about war.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">44</span>        root.yesBranch.yesBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Futuristic Superhero Movie"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 44:</strong> Leaf node! "yes → yes → yes": action + long + sci-fi → recommends "Futuristic Superhero Movie". This node has no children (isLeaf returns true).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">45</span>        root.yesBranch.yesBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Action Adventure Movie"</span>);</span>
+<pre><code>
+<span class="line"><span class="line-num">47</span>        root.yesBranch.noBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Military Battle Movie"</span>);</span>
+<pre><code>
+<span class="line"><span class="line-num">48</span>        root.yesBranch.noBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Fast Action Movie"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 45-48:</strong> More leaf nodes for the remaining "yes" subtree paths.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">50</span>        root.noBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you like animated movies?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 50:</strong> "no → yes" path: if user doesn't like action but likes comedy, ask about animated.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">51</span>        root.noBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Do you prefer sad or emotional stories?"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 51:</strong> "no → no" path: if user doesn't like action or comedy, ask about emotional stories.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">53</span>        root.noBranch.yesBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Animated Comedy Movie"</span>);</span>
+<span class="line"><span class="line-num">54</span>        root.noBranch.yesBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Romantic Comedy Movie"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 53-54:</strong> Leaf nodes for the "no → yes" subtree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">56</span>        root.noBranch.noBranch.yesBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Emotional Drama Movie"</span>);</span>
+<span class="line"><span class="line-num">57</span>        root.noBranch.noBranch.noBranch = <span class="keyword">new</span> <span class="type">MovieNode</span>(<span class="string">"Documentary Movie"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 56-57:</strong> Leaf nodes for the "no → no" subtree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">59</span>        <span class="keyword">return</span> root;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 59:</strong> Returns the root of the fully constructed tree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">60</span>    }</span>
+<span class="line"><span class="line-num">61</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 60-61:</strong> Close the method and class.
+</div>
+</div>
+
+<div class="trace-label">Behind the Scenes &mdash; Decision Tree Execution Trace</div>
+<p><strong>User Answers:</strong> yes &rarr; yes &rarr; no</p>
+
+<h4>Walking Through the Decision Tree</h4>
+
+<table class="trace-table">
+  <tr><th>Step</th><th>current Node's Text</th><th>isLeaf()?</th><th>User Answer</th><th>Action / Transition</th></tr>
+  <tr>
+    <td>1</td><td>"Do you enjoy action movies?"</td><td>false (has children)</td><td><strong>yes</strong></td>
+    <td>current = current.yesBranch &rarr; "Do you prefer long-duration movies?"</td>
+  </tr>
+  <tr>
+    <td>2</td><td>"Do you prefer long-duration movies?"</td><td>false (has children)</td><td><strong>yes</strong></td>
+    <td>current = current.yesBranch &rarr; "Do you like sci-fi themes?"</td>
+  </tr>
+  <tr>
+    <td>3</td><td>"Do you like sci-fi themes?"</td><td>false (has children)</td><td><strong>no</strong></td>
+    <td>current = current.noBranch &rarr; <strong>"Action Adventure Movie"</strong></td>
+  </tr>
+  <tr class="highlight">
+    <td>4</td><td>"Action Adventure Movie"</td><td>true &#x2705; (both children null)</td><td>&mdash;</td>
+    <td><strong>Loop exits!</strong> isLeaf() == true &rarr; stop asking questions</td>
+  </tr>
+</table>
+
+<div class="trace-label">How isLeaf() Determines When to Stop</div>
+<table class="trace-table">
+  <tr><th>Node</th><th>yesBranch</th><th>noBranch</th><th>isLeaf() = (yes==null &amp;&amp; no==null)</th></tr>
+  <tr><td>"Do you enjoy action movies?"</td><td>not null</td><td>not null</td><td><strong>false</strong> &rarr; question node (keep asking)</td></tr>
+  <tr><td>"Action Adventure Movie"</td><td>null</td><td>null</td><td><strong>true</strong> &rarr; leaf node (recommendation reached)</td></tr>
+</table>
+
+<h4>Final Recommendation</h4>
+<div style="background:#ddf4ff;border-left:4px solid #0550ae;padding:12px 16px;border-radius:4px;margin:10px 0;font-size:1.1em;">
+  <strong>Recommended Movie: Action Adventure Movie</strong>
+</div>
+
+<h4>Decision Path Visualized</h4>
+<pre class="tree-diagram">
+                    Do you enjoy action movies?  &larr; Start here
+                   /                            \
+         (yes) Do you prefer long-duration?    (would go to comedy)
+              /               \
+  (yes) Do you like sci-fi?  (would go to war)
+         /         \
+     (yes)        (no) &larr; we went this way
+   Superhero   <strong>Action Adventure</strong>    &larr; Final recommendation!
+   Movie         <strong>Movie</strong>
+</pre>
+
+<div class="tip">
+  <strong>The decision tree structure:</strong><br>
+  <pre style="background:#fafbfc;padding:10px;border-radius:6px;color:#1a7f37;font-size:0.85em;border:1px solid #d0d7de;">
+                    Do you enjoy action movies?
+                   /                          \
+      Do you prefer long-duration?      Do you enjoy comedy?
+         /            \                    /              \
+  Like sci-fi?    Like war?         Like animated?   Sad/emotional?
+   /      \        /     \            /     \          /        \
+Superhero Action  Military Fast   Animated Romantic  Emotional Documentary
+  Movie Adventure  Battle  Action  Comedy   Comedy    Drama     Movie
+         Movie     Movie   Movie   Movie    Movie     Movie
+  </pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- PROJECT 3: TEXT CONCORDANCE (UNIQUE WORDS) -->
+<!-- ============================================================ -->
+<h2 id="concordance">3. Text Concordance — Unique Words (BST)</h2>
+<p><strong>What it does:</strong> Reads a line of text, extracts words (ignoring punctuation/case), inserts them into a BST, displays them in alphabetical order, and counts how many unique words there are.</p>
+
+<div class="file-group">
+<div class="file-group-title"> How the three files work together</div>
+<p><strong>WordNode.java</strong> → A BST node that holds a String word instead of an integer.</p>
+<p><strong>TextConcordanceBST.java</strong> → BST logic for String keys. Uses <code>compareTo()</code> for alphabetical ordering.</p>
+<p><strong>TextConcordanceApp.java</strong> → Main program — reads input, cleans it, splits into words, inserts into BST, displays sorted.</p>
+</div>
+
+<h3>WordNode.java</h3>
+
+<div class="code-block">
+<div class="file-label">WordNode.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">public class</span> <span class="type">WordNode</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares WordNode — similar to the Node class in Warehouse but stores a <strong>String</strong> instead of int.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    String word;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 2:</strong> Stores the actual word (String) in this node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span>    <span class="type">WordNode</span> left, right;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 3:</strong> Left and right child references, same as any BST node.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="type">WordNode</span>(String word) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 5:</strong> Constructor — notice it's NOT public (package-private). Same logic as Node constructor.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">6</span>        <span class="keyword">this</span>.word = word;</span>
+<span class="line"><span class="line-num">7</span>        left = right = <span class="keyword">null</span>;</span>
+<span class="line"><span class="line-num">8</span>    }</span>
+<span class="line"><span class="line-num">9</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 6-9:</strong> Sets the word field, initializes children to null, closes constructor and class.
+</div>
+</div>
+
+<h3>TextConcordanceBST.java — the "enhanced" version with counting</h3>
+
+<div class="code-block">
+<div class="file-label">TextConcordanceBST.java (with unique word counting)</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">public class</span> <span class="type">TextConcordanceBST</span> {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Declares the BST class for storing words.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">2</span>    <span class="keyword">private</span> <span class="type">WordNode</span> root;</span>
+<span class="line"><span class="line-num">3</span>    <span class="keyword">private</span> <span class="type">int</span> totalWords;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 2-3:</strong> <code>root</code> is the root of the BST. <code>totalWords</code> is a counter that tracks the number of <strong>unique</strong> words inserted. It's incremented only when a truly new word is added (not a duplicate).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>    <span class="keyword">public void</span> <span class="method">insert</span>(String word) {</span>
+<span class="line"><span class="line-num">6</span>        root = insertRec(root, word);</span>
+<span class="line"><span class="line-num">7</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 5-7:</strong> Public insert method — same wrapper pattern as before.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>    <span class="keyword">private</span> <span class="type">WordNode</span> <span class="method">insertRec</span>(<span class="type">WordNode</span> node, String word) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Private recursive insert. Takes a WordNode and a String word.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">10</span>        <span class="keyword">if</span> (node == <span class="keyword">null</span>) {</span>
+<span class="line"><span class="line-num">11</span>            totalWords++;</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 10-11:</strong> Base case: if we've reached an empty spot, create a new node. Before creating it, <strong>increment totalWords</strong> because this is a truly new unique word.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>            <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">WordNode</span>(word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Creates and returns a new WordNode with the given word.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">13</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 13:</strong> Closes the null check.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        <span class="type">int</span> cmp = word.<span class="method">compareTo</span>(node.word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> Uses <span class="term">word.compareTo(node.word)</span> to compare strings <strong>alphabetically</strong>. <code>compareTo</code> is part of the Comparable interface (String implements Comparable). It returns:
+<ul>
+  <li><strong>negative</strong> if word comes BEFORE node.word alphabetically (e.g., "apple".compareTo("banana") → negative)</li>
+  <li><strong>zero</strong> if they're equal</li>
+  <li><strong>positive</strong> if word comes AFTER</li>
+</ul>
+</div>
+<pre><code>
+<span class="line"><span class="line-num">15</span>        <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 15:</strong> If cmp < 0, the new word is alphabetically smaller — go to the <strong>left</strong> subtree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>            node.left = insertRec(node.left, word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> Recursively insert into left subtree and update left child reference.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>        } <span class="keyword">else if</span> (cmp &gt; <span class="number">0</span>) {</span>
+<span class="line"><span class="line-num">18</span>            node.right = insertRec(node.right, word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 17-18:</strong> If cmp > 0, the new word is alphabetically larger — go to the <strong>right</strong> subtree.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Closes the if-else. Note: there's NO else for duplicates (cmp == 0) — we simply do nothing, meaning duplicates are silently ignored (not inserted). Unlike Warehouse which prints a warning.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>        <span class="keyword">return</span> node;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 20:</strong> Returns the node (unchanged if it already existed).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">21</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 21:</strong> Closes insertRec.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>    <span class="keyword">public void</span> <span class="method">displayAscendingOrder</span>() {</span>
+<span class="line"><span class="line-num">24</span>        displayAscendingOrderRec(root);</span>
+<span class="line"><span class="line-num">25</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 23-25:</strong> Public display method — delegates to recursive version.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>    <span class="keyword">private void</span> <span class="method">displayAscendingOrderRec</span>(<span class="type">WordNode</span> node) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 27:</strong> Recursive in-order traversal (Left → Root → Right).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">28</span>        <span class="keyword">if</span> (node != <span class="keyword">null</span>) {</span>
+<span class="line"><span class="line-num">29</span>            displayAscendingOrderRec(node.left);</span>
+<span class="line"><span class="line-num">30</span>            System.out.<span class="method">println</span>(node.word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 28-30:</strong> Visit left, print the word (each on its own line via println), then visit right.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">31</span>            displayAscendingOrderRec(node.right);</span>
+<span class="line"><span class="line-num">32</span>        }</span>
+<span class="line"><span class="line-num">33</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 31-33:</strong> Visit right, close the if and method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">35</span>    <span class="keyword">public void</span> <span class="method">countAllWords</span>() {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 35:</strong> Method that prints the total number of unique words.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">36</span>        System.out.<span class="method">println</span>(<span class="string">"Total number of unique words: "</span> + totalWords);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 36:</strong> Prints the totalWords counter. This counter was incremented only when truly new nodes were created (line 11).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">37</span>    }</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 37:</strong> Closes countAllWords.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">39</span>    <span class="keyword">private int</span> <span class="method">traverseToCountWords</span>(<span class="type">WordNode</span> node) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 39:</strong> An alternative method to count unique words by traversing the tree recursively. <strong>BUT this method is never called!</strong> The code uses <code>totalWords</code> counter instead.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">40</span>        <span class="keyword">if</span> (node == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span>
+<span class="line"><span class="line-num">41</span>        <span class="keyword">return</span> <span class="number">1</span> + traverseToCountWords(node.left) + traverseToCountWords(node.right);</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 40-41:</strong> Recursively counts nodes: 1 (current) + left subtree count + right subtree count. This is a standard tree node counting technique. Returns the total number of nodes in the tree, which equals the number of unique words.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">42</span>    }</span>
+<span class="line"><span class="line-num">43</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 42-43:</strong> Close method and class.
+</div>
+</div>
+
+<div class="trace-label">Behind the Scenes &mdash; Text Concordance BST Execution Trace</div>
+<p><strong>Input:</strong> <code>"The cat sat on the mat"</code></p>
+
+<h4>Step 1: Text Cleaning</h4>
+<table class="trace-table">
+  <tr><th>Operation</th><th>Result</th></tr>
+  <tr><td>Original input</td><td><code>"The cat sat on the mat"</code></td></tr>
+  <tr><td>After <strong>toLowerCase()</strong></td><td><code>"the cat sat on the mat"</code></td></tr>
+  <tr><td>After <strong>replaceAll("[^a-z ]", "")</strong></td><td><code>"the cat sat on the mat"</code> (no punctuation to remove)</td></tr>
+  <tr><td>After <strong>split("\\s+")</strong></td><td><code>["the", "cat", "sat", "on", "the", "mat"]</code> &rarr; <strong>6 words total</strong></td></tr>
+</table>
+
+<h4>Step 2: Inserting Words into BST (one by one)</h4>
+
+<div class="trace-label">Insert "the" (first word &rarr; becomes root)</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Action</th><th>node == null?</th><th>BST State After Insert</th></tr>
+  <tr class="highlight">
+    <td>"the"</td><td>root = insertRec(null, "the")</td><td>&#x2705; yes &rarr; new WordNode("the"), totalWords++ (now 1)</td>
+    <td><pre>the</pre></td>
+  </tr>
+</table>
+
+<div class="trace-label">Insert "cat" &mdash; compareTo("the") &lt; 0 &rarr; goes LEFT</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Action</th><th>Comparison</th><th>BST State After Insert</th></tr>
+  <tr class="highlight">
+    <td>"cat"</td><td>insertRec(root="the", "cat")</td><td>"cat".compareTo("the") &lt; 0 &rarr; go LEFT</td>
+    <td><pre>  the
+  /
+cat</pre></td>
+  </tr>
+</table>
+
+<div class="trace-label">Insert "sat" &mdash; compareTo("the") &lt; 0 &rarr; LEFT &rarr; compareTo("cat") &gt; 0 &rarr; RIGHT</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Path</th><th>compareTo Results</th><th>BST State</th></tr>
+  <tr class="highlight">
+    <td>"sat"</td><td>the &rarr; cat &rarr; (right, new node)</td><td>"sat"&lt;"the" &rarr; go left<br>"sat"&gt;"cat" &rarr; go right &#x2705;</td>
+    <td><pre>  the
+  /
+cat
+  \
+  sat</pre></td>
+  </tr>
+</table>
+
+<div class="trace-label">Insert "on" &mdash; the &rarr; cat &rarr; sat &rarr; (left, new node)</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Path</th><th>compareTo Results</th><th>BST State</th></tr>
+  <tr class="highlight">
+    <td>"on"</td><td>the &rarr; cat &rarr; sat &rarr; (left)</td><td>"on"&lt;"the" &rarr; left<br>"on"&gt;"cat" &rarr; right<br>"on"&lt;"sat" &rarr; left &#x2705;</td>
+    <td><pre>  the
+  /
+cat
+  \
+  sat
+  /
+ on</pre></td>
+  </tr>
+</table>
+
+<div class="trace-label">Insert "the" (duplicate!) &mdash; compareTo returns 0 &rarr; silently skipped</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Path</th><th>compareTo</th><th>Action</th></tr>
+  <tr class="highlight">
+    <td>"the"</td><td>the &rarr; (it's the same!)</td><td>"the".compareTo("the") == 0</td><td><strong>Duplicate!</strong> Do nothing. totalWords stays at 4.</td>
+  </tr>
+</table>
+
+<div class="trace-label">Insert "mat" &mdash; the &rarr; cat &rarr; sat &rarr; on &rarr; (right, new node)</div>
+<table class="trace-table">
+  <tr><th>Word</th><th>Path</th><th>compareTo Results</th><th>BST State</th></tr>
+  <tr class="highlight">
+    <td>"mat"</td><td>the &rarr; cat &rarr; sat &rarr; on &rarr; (right)</td><td>"mat"&lt;"the" &rarr; left<br>"mat"&gt;"cat" &rarr; right<br>"mat"&lt;"sat" &rarr; left<br>"mat"&gt;"on" &rarr; right &#x2705;</td>
+    <td><pre>  the
+  /
+cat
+  \
+  sat
+  /
+on
+  \
+  mat</pre></td>
+  </tr>
+</table>
+
+<h4>Step 3: In-order Traversal (Alphabetical Display)</h4>
+<table class="trace-table">
+  <tr><th>Step</th><th>Current Node</th><th>Traversal Rule (Left &rarr; Print &rarr; Right)</th><th>Output</th></tr>
+  <tr><td>1</td><td>the</td><td>Go LEFT &rarr; cat</td><td>&mdash;</td></tr>
+  <tr><td>2</td><td>cat</td><td>cat.left == null &rarr; <strong>PRINT "cat"</strong> &rarr; Go RIGHT &rarr; sat</td><td><strong>cat</strong></td></tr>
+  <tr><td>3</td><td>sat</td><td>Go LEFT &rarr; on</td><td>&mdash;</td></tr>
+  <tr><td>4</td><td>on</td><td>on.left == null &rarr; <strong>PRINT "on"</strong> &rarr; Go RIGHT &rarr; mat</td><td><strong>on</strong></td></tr>
+  <tr><td>5</td><td>mat</td><td>mat.left == null &rarr; <strong>PRINT "mat"</strong> &rarr; mat.right == null &rarr; return</td><td><strong>mat</strong></td></tr>
+  <tr><td>6</td><td>sat</td><td>Left subtree done &rarr; <strong>PRINT "sat"</strong> &rarr; sat.right == null &rarr; return</td><td><strong>sat</strong></td></tr>
+  <tr><td>7</td><td>the</td><td>Left subtree done &rarr; <strong>PRINT "the"</strong> &rarr; the.right == null &rarr; return</td><td><strong>the</strong></td></tr>
+</table>
+<p><strong>Final display output (alphabetical order):</strong></p>
+<pre class="tree-diagram">
+cat
+mat
+on
+sat
+the
+</pre>
+
+<h4>Step 4: Word Counts</h4>
+<table class="trace-table">
+  <tr><th>Metric</th><th>Value</th><th>How It's Calculated</th></tr>
+  <tr class="highlight">
+    <td><strong>Unique words</strong> (BST totalWords counter)</td><td><strong>5</strong></td><td>totalWords incremented only for new insertions: "the","cat","sat","on","mat" = 5</td>
+  </tr>
+  <tr class="highlight">
+    <td><strong>Total words</strong> (local counter in App)</td><td><strong>6</strong></td><td>Every word in the array: "the","cat","sat","on","the","mat" = 6</td>
+  </tr>
+</table>
+<p>"the" appears <strong>twice</strong> in input but only <strong>once</strong> in BST &rarr; unique words (5) &lt; total words (6).</p>
+
+<h3>TextConcordanceApp.java</h3>
+
+<div class="code-block">
+<div class="file-label">TextConcordanceApp.java</div>
+<pre><code>
+<span class="line"><span class="line-num">1</span><span class="keyword">import</span> java.util.Scanner;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 1:</strong> Import Scanner.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">3</span><span class="keyword">public class</span> <span class="type">TextConcordanceApp</span> {</span>
+<span class="line"><span class="line-num">4</span>    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 3-4:</strong> Class and main method.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">5</span>        Scanner input = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);</span>
+<span class="line"><span class="line-num">6</span>        <span class="type">TextConcordanceBST</span> bst = <span class="keyword">new</span> <span class="type">TextConcordanceBST</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 5-6:</strong> Creates Scanner and an empty BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">8</span>        String text = input.<span class="method">nextLine</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 8:</strong> Reads an entire line of text from the user. This is the input to process.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">9</span>        <span class="type">int</span> totalWords = <span class="number">0</span>;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 9:</strong> Declares and initializes a local variable <code>totalWords</code> to count the <strong>total</strong> words (including duplicates) — different from the BST's unique word count.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">11</span>        text = text.<span class="method">toLowerCase</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 11:</strong> Converts the entire text to lowercase. This makes the search <strong>case-insensitive</strong> so "The" and "the" are treated as the same word.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">12</span>        text = text.<span class="method">replaceAll</span>(<span class="string">"[^a-z ]"</span>, <span class="string">""</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 12:</strong> Uses a <strong>regular expression (regex)</strong> to remove everything that's NOT a lowercase letter or space. <code>[^a-z ]</code> means "any character that is NOT in the range a-z or a space". <code>replaceAll</code> replaces all matches with an empty string <code>""</code>, effectively deleting them. This removes punctuation like commas, periods, apostrophes, numbers, etc.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">14</span>        String[] words = text.<span class="method">split</span>(<span class="string">"\\s+"</span>);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 14:</strong> <span class="term">text.split("\\s+")</span> splits the string into an array of words. <code>\\s+</code> is a regex that means "one or more whitespace characters" (spaces, tabs, etc.). The result is a String array <code>words[]</code> where each element is one word. Example: "the cat sat" → ["the", "cat", "sat"]
+</div>
+<pre><code>
+<span class="line"><span class="line-num">16</span>        <span class="keyword">for</span> (String word : words) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 16:</strong> An <strong>enhanced for-each loop</strong>. For each element in the <code>words</code> array, assign it to the variable <code>word</code> and execute the loop body. This is shorter than a traditional for loop with an index.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">17</span>            totalWords++;</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 17:</strong> Increments totalWords counter for <strong>every</strong> word in the input (including duplicates). This counts the total number of words in the original text.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">18</span>            <span class="keyword">if</span> (!word.<span class="method">isEmpty</span>()) {</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 18:</strong> Checks if the word is not empty. This prevents inserting empty strings (which could happen from split if there are multiple consecutive spaces, though \\s+ should handle that).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">19</span>                bst.<span class="method">insert</span>(word);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 19:</strong> Inserts the word into the BST. If it's a duplicate (already exists), the BST silently ignores it.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">20</span>            }</span>
+<span class="line"><span class="line-num">21</span>        }</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 20-21:</strong> Close the if and for-each loop.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">23</span>        bst.<span class="method">displayAscendingOrder</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 23:</strong> Displays all unique words in alphabetical (ascending) order. This uses in-order traversal of the BST.
+</div>
+<pre><code>
+<span class="line"><span class="line-num">24</span>        bst.<span class="method">countAllWords</span>();</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 24:</strong> Prints the total number of <strong>unique</strong> words (from the BST's internal counter).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">25</span>        System.out.<span class="method">println</span>(<span class="string">"Total number of input words: "</span> + totalWords);</span>
+</code></pre>
+<div class="explanation">
+<strong>Line 25:</strong> Prints the total number of words in the original input (including duplicates). This gives the user both counts: unique words (from BST) and total words (from the local counter).
+</div>
+<pre><code>
+<span class="line"><span class="line-num">27</span>    }</span>
+<span class="line"><span class="line-num">28</span>}</span>
+</code></pre>
+<div class="explanation">
+<strong>Lines 27-28:</strong> Close main and class.
+</div>
+</div>
+
+<div class="tip">
+  <strong>Example run:</strong><br>
+  Input: <code>The cat sat on the mat. The cat is happy!</code><br><br>
+  After cleaning (lowercase + remove punctuation): <code>"the cat sat on the mat the cat is happy"</code><br>
+  Output:<br>
+  <code>cat</code><br>
+  <code>happy</code><br>
+  <code>is</code><br>
+  <code>mat</code><br>
+  <code>on</code><br>
+  <code>sat</code><br>
+  <code>the</code><br>
+  <code>Total number of unique words: 7</code><br>
+  <code>Total number of input words: 10</code>
+</div>
+
+<div class="warning">
+  <strong>Exam Tip:</strong> Know the difference between the <strong>two TextConcordance</strong> versions in your DSA folder:
+  <ul>
+    <li>The "Display and Count All Unique Words" version has the <code>totalWords</code> counter and <code>countAllWords()</code> method.</li>
+    <li>The "Simple TextConcordance Using BST" version is SIMPLER — it only has <code>displayAscendingOrder()</code>, no counting. It's the basic BST version.</li>
+  </ul>
+  Both use the same BST principle but the enhanced version adds word counting.
+</div>
+
+<!-- ============================================================ -->
+<!-- SUMMARY TABLE -->
+<!-- ============================================================ -->
+<h2 style="margin-top:50px;">Quick Comparison — All BST Programs</h2>
+
+<table>
+  <tr>
+    <th>Program</th>
+    <th>Data Stored</th>
+    <th>Key Methods</th>
+    <th>Unique Feature</th>
+  </tr>
+  <tr>
+    <td>Warehouse Inventory</td>
+    <td>int (itemCode)</td>
+    <td>insert, search, displayAscending, findSmallest, findLargest</td>
+    <td>Iterative min/max (no recursion), duplicate warning</td>
+  </tr>
+  <tr>
+    <td>Movie Recommendation</td>
+    <td>String (questions/movies)</td>
+    <td>isLeaf (traversal via user answers)</td>
+    <td>NOT a BST — it's a binary decision tree. No ordering rule.</td>
+  </tr>
+  <tr>
+    <td>Text Concordance</td>
+    <td>String (words)</td>
+    <td>insert, displayAscending, countAllWords / traverseToCountWords</td>
+    <td>String comparison with compareTo, duplicate words silently ignored</td>
+  </tr>
+</table>
+
+<div class="warning">
+  <strong>BST Rules Summary for Exam:</strong>
+  <ol>
+    <li>Each node has at most <strong>2 children</strong> (left and right)</li>
+    <li>Left subtree contains values <strong>smaller</strong> than the parent</li>
+    <li>Right subtree contains values <strong>larger</strong> than the parent</li>
+    <li>No duplicates (varies by implementation — some warn, some silently ignore)</li>
+    <li><strong>In-order traversal</strong> (Left → Root → Right) gives values in <strong>sorted order</strong></li>
+    <li>Search, insert, delete are O(log n) on average (O(n) worst case)</li>
+  </ol>
+</div>
+
+</body>
+</html>
