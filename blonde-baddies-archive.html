@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Blonde Baddies Archive</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={
+theme:{
+extend:{
+colors:{
+champagne:'#D4AF37',
+gold:'#FFD700',
+'gold-light':'#F5E6A3',
+'gold-dark':'#B8860B',
+blush:'#FFB6C1',
+'blush-light':'#FFE4E9',
+'soft-pink':'#F8C8DC',
+'luxury-black':'#0A0A0A',
+'luxury-gray':'#1A1A1A',
+'cream':'#FFF8F0',
+'pearl':'#F5F0EB',
+},
+fontFamily:{
+display:['"Playfair Display"','Georgia','serif'],
+body:['"Inter"','system-ui','sans-serif'],
+script:['"Dancing Script"','cursive'],
+}
+}
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet"/>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:#0A0A0A;color:#fff;font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:#0A0A0A;}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#D4AF37,#FFD700);border-radius:4px;}
+::selection{background:#D4AF37;color:#0A0A0A;}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 20px rgba(212,175,55,0.3)}50%{box-shadow:0 0 40px rgba(212,175,55,0.6)}}
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
+@keyframes slide-up{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:translateY(0)}}
+@keyframes gradient-flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes text-glow{0%,100%{text-shadow:0 0 10px rgba(212,175,55,0.5)}50%{text-shadow:0 0 30px rgba(212,175,55,0.8),0 0 60px rgba(255,215,0,0.4)}}
+.shimmer-text{background:linear-gradient(90deg,#D4AF37,#FFD700,#FFF,#FFD700,#D4AF37);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite;}
+.gold-gradient{background:linear-gradient(135deg,#B8860B,#D4AF37,#FFD700,#F5E6A3,#FFD700,#D4AF37,#B8860B);background-size:300% 300%;animation:gradient-flow 4s ease infinite;}
+.glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(212,175,55,0.15);}
+.glass-dark{background:rgba(10,10,10,0.7);backdrop-filter:blur(30px);border:1px solid rgba(212,175,55,0.1);}
+.card-hover{transition:all 0.5s cubic-bezier(0.23,1,0.32,1);}
+.card-hover:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 60px rgba(212,175,55,0.2);}
+.gold-border{border:1px solid rgba(212,175,55,0.3);transition:border-color 0.3s;}
+.gold-border:hover{border-color:rgba(212,175,55,0.8);}
+.hero-bg{background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,0.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(255,182,193,0.08) 0%,transparent 50%),#0A0A0A;}
+.particle{position:absolute;width:4px;height:4px;background:#D4AF37;border-radius:50%;pointer-events:none;}
+.star-field{position:absolute;inset:0;overflow:hidden;}
+.star{position:absolute;width:2px;height:2px;background:#FFD700;border-radius:50%;animation:sparkle var(--duration) ease-in-out infinite;animation-delay:var(--delay);}
+@keyframes reveal-line{from{width:0}to{width:100%}}
+.reveal-line{animation:reveal-line 1s ease forwards;}
+.quiz-option{transition:all 0.3s cubic-bezier(0.23,1,0.32,1);}
+.quiz-option:hover{transform:translateX(8px);background:rgba(212,175,55,0.1);border-color:rgba(212,175,55,0.5);}
+.quiz-option.selected{background:rgba(212,175,55,0.2);border-color:#D4AF37;box-shadow:0 0 20px rgba(212,175,55,0.2);}
+.timeline-line{background:linear-gradient(180deg,transparent,#D4AF37,transparent);}
+.timeline-dot{width:20px;height:20px;border-radius:50%;background:#D4AF37;box-shadow:0 0 20px rgba(212,175,55,0.5);position:relative;z-index:2;}
+.timeline-dot::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(212,175,55,0.3);animation:pulse-gold 2s ease infinite;}
+.baddie-avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #D4AF37;box-shadow:0 0 30px rgba(212,175,55,0.3);}
+.tab-active{background:linear-gradient(135deg,rgba(212,175,55,0.2),rgba(255,215,0,0.1));border-color:#D4AF37;color:#FFD700;}
+.score-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.1);overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#B8860B,#D4AF37,#FFD700);transition:width 1.5s cubic-bezier(0.23,1,0.32,1);}
+.customize-option{transition:all 0.3s;cursor:pointer;}
+.customize-option:hover{transform:scale(1.05);}
+.customize-option.active{ring:2px;box-shadow:0 0 20px rgba(212,175,55,0.4);transform:scale(1.05);}
+.magnetic{transition:transform 0.3s cubic-bezier(0.23,1,0.32,1);}
+.nav-scrolled{background:rgba(10,10,10,0.95)!important;backdrop-filter:blur(20px);box-shadow:0 4px 30px rgba(0,0,0,0.5);}
+.result-card{background:linear-gradient(135deg,#1A1A1A 0%,#0A0A0A 50%,#1A1A1A 100%);border:1px solid rgba(212,175,55,0.3);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useRef,useCallback,useMemo,createContext,useContext}=React;
+const{motion,AnimatePresence,useInView,useScroll,useTransform,useSpring,useMotionValue}=window["framer-motion"];
+
+const GoldParticles=()=>{
+const[particles]=useState(()=>Array.from({length:30},(_,i)=>({id:i,x:Math.random()*100,y:Math.random()*100,size:Math.random()*3+1,duration:Math.random()*3+2,delay:Math.random()*5})));
+return(<div className="absolute inset-0 overflow-hidden pointer-events-none">{particles.map(p=>(
+<motion.div key={p.id} className="absolute rounded-full" style={{left:`${p.x}%`,top:`${p.y}%`,width:p.size,height:p.size,background:`radial-gradient(circle,#FFD700,#D4AF37)`}}
+initial={{opacity:0}} animate={{opacity:[0,1,0],y:[0,-30,-60],x:[0,Math.random()*20-10]}} transition={{duration:p.duration,delay:p.delay,repeat:Infinity,ease:"easeInOut"}}/>
+))}</div>);
+};
+
+const Navbar=()=>{
+const[scrolled,setScrolled]=useState(false);
+const[section,setSection]=useState('hero');
+useEffect(()=>{const h=()=>{setScrolled(window.scrollY>50);const sections=['hero','gallery','quizzes','analysis','timeline','builder'];for(const s of sections){const el=document.getElementById(s);if(el&&el.getBoundingClientRect().top<=200&&el.getBoundingClientRect().bottom>200){setSection(s);break;}}};window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h);},[]);
+const links=[{id:'hero',label:'Home'},{id:'gallery',label:'Gallery'},{id:'quizzes',label:'Quizzes'},{id:'analysis',label:'Analysis'},{id:'timeline',label:'Timeline'},{id:'builder',label:'Builder'}];
+return(<motion.nav initial={{y:-100}} animate={{y:0}} transition={{duration:0.8,ease:[0.23,1,0.32,1]}}
+className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled?'nav-scrolled py-3':'py-5'}`}>
+<div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+<motion.div className="flex items-center gap-3" whileHover={{scale:1.02}}>
+<div className="w-10 h-10 rounded-full gold-gradient flex items-center justify-center">
+<span className="text-luxury-black font-bold text-sm">BB</span>
+</div>
+<span className="font-display text-lg sm:text-xl font-bold shimmer-text hidden sm:block">The Blonde Baddies</span>
+</motion.div>
+<div className="flex gap-1 sm:gap-2">{links.map(l=>(
+<a key={l.id} href={`#${l.id}`}
+className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 border border-transparent
+${section===l.id?'tab-active':'text-white/60 hover:text-white hover:border-white/10'}`}>{l.label}</a>
+))}</div>
+</div></motion.nav>);
+};
+
+const StarField=()=>{const stars=useMemo(()=>Array.from({length:60},(_,i)=>({id:i,x:Math.random()*100,y:Math.random()*100,d:Math.random()*3+2,dl:Math.random()*5})),[]);
+return(<div className="star-field">{stars.map(s=><div key={s.id} className="star" style={{left:`${s.x}%`,top:`${s.y}%`,'--duration':`${s.d}s`,'--delay':`${s.dl}s`}}/>)}</div>);
+};
+
+const HeroSection=()=>(
+<section id="hero" className="relative min-h-screen flex items-center justify-center hero-bg overflow-hidden">
+<StarField/><GoldParticles/>
+<div className="absolute inset-0" style={{background:'radial-gradient(circle at 50% 50%,rgba(212,175,55,0.08) 0%,transparent 70%)'}}/>
+<motion.div className="relative z-10 text-center px-4 max-w-5xl mx-auto" initial={{opacity:0}} animate={{opacity:1}} transition={{duration:1.5}}>
+<motion.div initial={{scale:0,rotate:-180}} animate={{scale:1,rotate:0}} transition={{duration:1.2,ease:[0.23,1,0.32,1]}}
+className="mx-auto mb-8 w-28 h-28 sm:w-36 sm:h-36 rounded-full gold-gradient flex items-center justify-center" style={{boxShadow:'0 0 60px rgba(212,175,55,0.4)'}}>
+<span className="text-luxury-black font-display text-3xl sm:text-4xl font-black">BB</span>
+</motion.div>
+<motion.div initial={{opacity:0,y:40}} animate={{opacity:1,y:0}} transition={{delay:0.5,duration:1}}>
+<h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none mb-2">
+<span className="shimmer-text">The Blonde</span><br/>
+<span className="text-white">Baddies</span><br/>
+<span className="font-script text-4xl sm:text-5xl md:text-6xl" style={{color:'#D4AF37'}}>Archive</span>
+</h1>
+</motion.div>
+<motion.div initial={{width:0}} animate={{width:'200px'}} transition={{delay:1,duration:1,ease:"easeInOut"}}
+className="h-[2px] mx-auto my-8 gold-gradient rounded-full"/>
+<motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:1.2,duration:0.8}}
+className="text-lg sm:text-xl md:text-2xl text-white/70 font-light max-w-2xl mx-auto leading-relaxed">
+Exploring the <span className="text-champagne font-medium">confidence</span>, <span className="text-blush font-medium">style</span>, and <span className="text-gold font-medium">cultural impact</span> of blonde icons
+</motion.p>
+<motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:1.6,duration:0.8}} className="mt-12 flex flex-wrap justify-center gap-4">
+<a href="#gallery" className="group relative px-8 py-4 rounded-full font-semibold text-luxury-black overflow-hidden">
+<div className="absolute inset-0 gold-gradient"/><div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-all duration-300"/>
+<span className="relative z-10">Explore the Archive</span></a>
+<a href="#quizzes" className="group px-8 py-4 rounded-full font-semibold border border-champagne/40 text-champagne hover:bg-champagne/10 transition-all duration-300">
+Take the Quiz</a>
+</motion.div>
+<motion.div animate={{y:[0,10,0]}} transition={{duration:2,repeat:Infinity,ease:"easeInOut"}} className="mt-16">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2" className="mx-auto opacity-60">
+<path d="M12 5v14M5 12l7 7 7-7"/></svg>
+</motion.div>
+</motion.div></section>
+);
+
+const archetypes=[
+{id:'classic',name:'Classic Hollywood',icon:'🎬',subtitle:'Timeless Elegance',
+traits:['Red carpet glamour','Old Hollywood waves','Bold red lip','Pearl jewelry'],
+influence:'Defined beauty standards for decades. Marilyn Monroe, Grace Kelly, and Brigitte Bardot created the blueprint for Hollywood glamour.',
+cultural:'Created the iconic "blonde bombshell" archetype that still influences fashion and beauty today.',
+score:95,color:'#D4AF37',
+image:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',
+vibes:'Elegant, magnetic, timeless'},
+{id:'model',name:'Fashion Model',icon:'👗',subtitle:'Runway Royalty',
+traits:['High fashion editorial','Minimalist aesthetic','Strong bone structure','Bold fashion choices'],
+influence:'Set trends on international runways. Kate Moss, Gisele Bundchen, and Cara Delevingne redefined modeling.',
+cultural:'Brought high fashion to mainstream culture and created the "supermodel" phenomenon.',
+score:92,color:'#FFB6C1',
+image:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop',
+vibes:'Fierce, editorial, avant-garde'},
+{id:'rockstar',name:'Rockstar Blonde',icon:'🎸',subtitle:'Rebel Spirit',
+traits:['Edgy styling','Leather and studs','Messy waves','Bold attitude'],
+influence:'Combined music and fashion rebelliously. Debbie Harry, Courtney Love, and Avril Lavigne broke molds.',
+cultural:'Proved blonde could be punk, edgy, and countercultural rather than just glamorous.',
+score:88,color:'#C0C0C0',
+image:'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop',
+vibes:'Rebellious, raw, iconic'},
+{id:'sporty',name:'Sporty Blonde',icon:'⚡',subtitle:'Athletic Power',
+traits:['Athletic build','Natural beauty','Active lifestyle','Healthy glow'],
+influence:'Showcased strength and athleticism. From skiers to tennis champions, redefined beauty through power.',
+cultural:'Challenged traditional beauty norms by celebrating strength and athletic achievement.',
+score:85,color:'#00D4FF',
+image:'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop',
+vibes:'Strong, dynamic, empowered'},
+{id:'glam',name:'Luxury Glam',icon:'💎',subtitle:'Opulent Living',
+traits:['Designer everything','Perfectly styled','Glowing skin','Luxe lifestyle'],
+influence:'Embody luxury and aspiration. Paris Hilton, the Kardashians' blonde era, and influencer culture.',
+cultural:'Created the modern "luxury lifestyle" aesthetic that dominates social media.',
+score:90,color:'#FFD700',
+image:'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop',
+vibes:'Luxurious, aspirational, bold'},
+{id:'influencer',name:'Modern Influencer',icon:'📱',subtitle:'Digital Native',
+traits:['Curated aesthetic','Social media savvy','Trendsetting','Brand collaborations'],
+influence:'Built empires through personal branding. From YouTube to TikTok, redefined fame.',
+cultural:'Democratized beauty and fashion, making trends accessible to everyone globally.',
+score:87,color:'#FF69B4',
+image:'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',
+vibes:'Trendy, relatable, innovative'},
+];
+
+const FeaturedProfile=()=>(
+<motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.8}}
+className="max-w-6xl mx-auto px-4 mb-20">
+<div className="relative rounded-3xl overflow-hidden gold-border" style={{background:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(255,182,193,0.05))'}}>
+<div className="absolute top-4 right-4 px-4 py-1.5 rounded-full gold-gradient text-luxury-black text-xs font-bold tracking-wider z-10">
+✦ FEATURED ICON
+</div>
+<div className="grid md:grid-cols-2 gap-0">
+<div className="relative h-80 md:h-auto overflow-hidden">
+<img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&h=700&fit=crop" alt="Supergirl 2026" className="w-full h-full object-cover"/>
+<div className="absolute inset-0" style={{background:'linear-gradient(135deg,rgba(212,175,55,0.2),transparent)'}}/>
+<div className="absolute bottom-4 left-4 px-3 py-1 rounded-full bg-luxury-black/80 border border-champagne/30 text-xs text-champagne">
+⚡ Supergirl 2026
+</div>
+</div>
+<div className="p-8 md:p-12 flex flex-col justify-center">
+<div className="flex items-center gap-3 mb-4">
+<span className="text-4xl">🦸‍♀️</span>
+<div>
+<h3 className="font-display text-2xl sm:text-3xl font-bold text-white">Supergirl 2026</h3>
+<p className="text-champagne font-script text-xl">The New Era Icon</p>
+</div>
+</div>
+<div className="w-16 h-[2px] gold-gradient rounded-full mb-6"/>
+<p className="text-white/70 leading-relaxed mb-6">
+The blonde goddess who redefines power for a new generation. Combining otherworldly strength with undeniable style, she proves that being a baddie isn't just about looks — it's about embodying confidence, courage, and charisma in every frame.
+</p>
+<div className="grid grid-cols-2 gap-4 mb-6">
+{[{l:'Style',v:'Hero Chic'},{l:'Energy',v:'Unstoppable'},{l:'Impact',v:'Legendary'},{l:'Vibe',v:'Empowered'}].map(s=>(
+<div key={s.l} className="bg-white/5 rounded-xl p-3 border border-white/5">
+<div className="text-xs text-champagne/60 mb-1">{s.l}</div>
+<div className="text-sm font-semibold text-white">{s.v}</div>
+</div>))}
+</div>
+<div className="flex flex-wrap gap-2 mb-6">
+{['Power Blonde','Cape Couture','Krypton Confidence','Hero Energy'].map(t=>(
+<span key={t} className="px-3 py-1 rounded-full text-xs border border-champagne/30 text-champagne/80">{t}</span>
+))}
+</div>
+<div className="score-bar mb-2"><div className="score-fill" style={{width:'98%'}}/></div>
+<div className="flex justify-between text-xs text-white/50"><span>Baddie Score</span><span className="text-champagne font-bold">98/100</span></div>
+</div>
+</div>
+</div></motion.div>
+);
+
+const ProfileCard=({archetype,index})=>{
+const[flipped,setFlipped]=useState(false);
+return(
+<motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:index*0.1,duration:0.6}}
+className="group perspective-1000" style={{perspective:'1000px'}}>
+<motion.div animate={{rotateY:flipped?180:0}} transition={{duration:0.6,type:"spring",stiffness:100}}
+className="relative w-full" style={{transformStyle:'preserve-3d',minHeight:'480px'}}>
+<div className="absolute inset-0 rounded-2xl overflow-hidden gold-border card-hover" style={{backfaceVisibility:'hidden'}}>
+<div className="relative h-56 overflow-hidden">
+<img src={archetype.image} alt={archetype.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+<div className="absolute inset-0" style={{background:`linear-gradient(180deg,transparent 40%,rgba(10,10,10,0.95) 100%)`}}/>
+<div className="absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background:`${archetype.color}20`,border:`1px solid ${archetype.color}40`}}>
+{archetype.icon}
+</div>
+</div>
+<div className="p-5">
+<h3 className="font-display text-xl font-bold mb-1">{archetype.name}</h3>
+<p className="text-champagne font-script text-lg mb-3">{archetype.subtitle}</p>
+<div className="flex flex-wrap gap-1.5 mb-4">{archetype.traits.map(t=>(
+<span key={t} className="px-2 py-0.5 rounded-full text-[10px] border border-white/10 text-white/60">{t}</span>
+))}</div>
+<p className="text-white/50 text-sm mb-4 leading-relaxed line-clamp-3">{archetype.influence}</p>
+<div className="score-bar mb-1"><div className="score-fill" style={{width:`${archetype.score}%`}}/></div>
+<div className="flex justify-between text-xs text-white/40 mb-4"><span>Baddie Score</span><span className="text-champagne">{archetype.score}/100</span></div>
+<button onClick={()=>setFlipped(true)} className="w-full py-2.5 rounded-xl border border-champagne/30 text-champagne text-sm font-medium hover:bg-champagne/10 transition-all duration-300">
+View Full Profile →
+</button>
+</div>
+</div>
+<div className="absolute inset-0 rounded-2xl overflow-hidden gold-border p-6 flex flex-col" style={{backfaceVisibility:'hidden',transform:'rotateY(180deg)',background:'linear-gradient(135deg,#1A1A1A,#0A0A0A)'}}>
+<div className="flex items-center gap-3 mb-4">
+<span className="text-3xl">{archetype.icon}</span>
+<div><h3 className="font-display text-lg font-bold">{archetype.name}</h3><p className="text-champagne text-sm">{archetype.subtitle}</p></div>
+</div>
+<div className="w-12 h-[2px] gold-gradient rounded-full mb-4"/>
+<h4 className="text-xs text-champagne/60 uppercase tracking-wider mb-2">Style DNA</h4>
+<p className="text-white/60 text-sm leading-relaxed mb-4">{archetype.influence}</p>
+<h4 className="text-xs text-champagne/60 uppercase tracking-wider mb-2">Cultural Impact</h4>
+<p className="text-white/60 text-sm leading-relaxed mb-4">{archetype.cultural}</p>
+<h4 className="text-xs text-champagne/60 uppercase tracking-wider mb-2">Vibe Check</h4>
+<p className="text-white/80 text-sm font-medium mb-4">{archetype.vibes}</p>
+<div className="mt-auto"><button onClick={()=>setFlipped(false)} className="w-full py-2.5 rounded-xl border border-champagne/30 text-champagne text-sm font-medium hover:bg-champagne/10 transition-all duration-300">
+← Back to Card</button></div>
+</div>
+</motion.div></motion.div>);
+};
+
+const GallerySection=()=>(
+<section id="gallery" className="relative py-24 sm:py-32">
+<GoldParticles/>
+<div className="max-w-7xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} className="text-center mb-16">
+<span className="text-champagne/60 text-sm tracking-[0.3em] uppercase font-medium">The Collection</span>
+<h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-black mt-3 mb-4">
+Blonde <span className="shimmer-text">Archetypes</span>
+</h2>
+<p className="text-white/50 max-w-xl mx-auto">Explore the diverse world of blonde aesthetics, from timeless Hollywood glamour to modern digital icons.</p>
+</motion.div>
+<FeaturedProfile/>
+<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+{archetypes.map((a,i)=><ProfileCard key={a.id} archetype={a} index={i}/>)}
+</div></div></section>
+);
+
+const quizzes={
+'who':{title:'Which Blonde Baddie Are You?',questions:[
+{q:'Your ideal Saturday night?',options:['Red carpet event','Concert front row','Rooftop party','Gym then brunch','Designer shopping','Content creation studio'],scores:[0,2,1,3,4,5]},
+{q:'Pick a power color:',options:['Classic red','Hot pink','Jet black','Icy blue','Champagne gold','Pastel lavender'],scores:[0,1,2,3,4,5]},
+{q:'Your dream career?',options:['Movie star','Rock musician','Fashion designer','Pro athlete','Luxury brand CEO','Social media mogul'],scores:[0,2,1,3,4,5]},
+{q:'How do you handle drama?',options:['优雅 silence','Confront head-on','Write a song about it','Work out harder','Call my lawyer','Post a subtle story'],scores:[0,2,3,1,4,5]},
+{q:'Your aesthetic motto?',options:['Old money, new rules','Live fast, look good','Less is more','Strong is beautiful','Luxury is a lifestyle','Main character energy'],scores:[0,2,1,3,4,5]},
+],results:[
+{name:'Classic Hollywood Queen',desc:'You radiate timeless glamour and sophistication. Your beauty is magnetic and your presence commands every room.',icon:'👑',color:'#D4AF37'},
+{name:'Rockstar Rebel',desc:'You live life on your own terms. Edgy, bold, and unapologetically yourself — you set trends rather than follow them.',icon:'🎸',color:'#C0C0C0'},
+{name:'Fashion Maven',desc:'Fashion is your language and the runway is your home. You see art in everything and wear it beautifully.',icon:'👗',color:'#FFB6C1'},
+{name:'Athletic Powerhouse',desc:'Strong, determined, and unstoppable. You prove that beauty and strength go hand in hand.',icon:'⚡',color:'#00D4FF'},
+{name:'Luxury Icon',desc:'You appreciate the finer things and know your worth. Elegance isn\'t just what you wear — it\'s who you are.',icon:'💎',color:'#FFD700'},
+{name:'Digital Queen',desc:'You were born for the spotlight — especially the digital one. Creative, relatable, and always ahead of trends.',icon:'📱',color:'#FF69B4'},
+]},
+'energy':{title:'What\'s Your Blonde Baddie Energy?',questions:[
+{q:'Pick a drink:',options:['Champagne','Espresso martini','Green juice','Whiskey neat','Aperol spritz','Matcha latte'],scores:[0,4,3,2,1,5]},
+{q:'Your go-to outfit?',options:['Little black dress','Band tee + leather','Athleisure set','Power suit','Designer coordinates','Trendy co-ord set'],scores:[0,2,3,4,1,5]},
+{q:'Choose a city:',options:['Paris','London','Los Angeles','Tokyo','Dubai','Seoul'],scores:[0,2,1,3,4,5]},
+{q:'Your superpower?',options:['Charisma','Rebellion','Determination','Strength','Influence','Creativity'],scores:[0,2,3,1,4,5]},
+],results:[
+{name:'Timeless Energy',desc:'You carry yourself with grace and elegance. Your energy is magnetic and leaves a lasting impression.',icon:'✨',color:'#D4AF37'},
+{name:'Rebel Energy',desc:'Your energy is electric and unpredictable. You light up every room with your fearless spirit.',icon:'🔥',color:'#FF69B4'},
+{name:'Power Energy',desc:'You mean business. Your energy inspires others and your determination is unmatched.',icon:'💪',color:'#00D4FF'},
+{name:'Luxe Energy',desc:'Luxury flows through everything you do. Your energy is aspirational and magnetic.',icon:'💎',color:'#FFD700'},
+{name:'Creative Energy',desc:'Your mind is a universe of ideas. You create trends and inspire movement.',icon:'🎨',color:'#FFB6C1'},
+]},
+'aesthetic':{title:'Choose Your Aesthetic',questions:[
+{q:'Pick a movie vibe:',options:['Breakfast at Tiffany\'s','Clueless','Mean Girls','Black Swan','The Great Gatsby','Euphoria'],scores:[0,1,4,2,3,5]},
+{q:'Dream room aesthetic?',options:['Parisian apartment','Rockstar loft','Minimalist modern','Bold maximalist','Art deco palace','Korean-inspired'],scores:[0,2,1,4,3,5]},
+{q:'Pick a season:',options:['Spring','Summer','Autumn','Winter','Fashion month','Festival season'],scores:[0,1,2,3,4,5]},
+{q:'Choose a social media feed:',options:['Curated elegance','Edgy editorial','Fitness inspiration','Luxury lifestyle','Art & design','Trend-forward'],scores:[0,2,3,4,1,5]},
+],results:[
+{name:'Classic Parisian',desc:'Effortlessly chic with a touch of romance. Your aesthetic is timeless elegance meets modern sophistication.',icon:'🗼',color:'#D4AF37'},
+{name:'Edgy Editorial',desc:'Bold, daring, and always fashion-forward. You turn heads with your avant-garde aesthetic.',icon:'🖤',color:'#C0C0C0'},
+{name:'Clean Girl',desc:'Minimalist beauty at its finest. Your aesthetic is fresh, dewy, and perfectly curated.',icon:'🌿',color:'#00D4FF'},
+{name:'Maximalist Queen',desc:'More is more! Your aesthetic is a vibrant explosion of color, pattern, and personality.',icon:'🌈',color:'#FF69B4'},
+{name:'Dark Academia Luxe',desc:'Intellectual meets opulent. Your aesthetic blends classic literature vibes with modern luxury.',icon:'📚',color:'#B8860B'},
+{name:'Y2K Revival',desc:'Nostalgia with a modern twist. Your aesthetic is fun, trendy, and totally Instagram-worthy.',icon:'💫',color:'#FFD700'},
+]}
+};
+
+const QuizSection=()=>{
+const[activeQuiz,setActiveQuiz]=useState(null);
+const[currentQ,setCurrentQ]=useState(0);
+const[answers,setAnswers]=useState([]);
+const[showResult,setShowResult]=useState(false);
+const[animating,setAnimating]=useState(false);
+
+const startQuiz=(key)=>{setActiveQuiz(key);setCurrentQ(0);setAnswers([]);setShowResult(false);};
+const answer=(score)=>{setAnimating(true);const newAnswers=[...answers,score];setAnswers(newAnswers);
+setTimeout(()=>{if(currentQ<quizzes[activeQuiz].questions.length-1){setCurrentQ(currentQ+1)}else{setShowResult(true)}setAnimating(false);},400);};
+const getResult=()=>=>{const total=answers.reduce((a,b)=>a+b,0);const maxScore=quizzes[activeQuiz].questions.length*(quizzes[activeQuiz].questions[0].scores.length-1);
+const idx=Math.min(Math.floor((total/maxScore)*quizzes[activeQuiz].results.length),quizzes[activeQuiz].results.length-1);return quizzes[activeQuiz].results[idx];};
+const reset=()=>{setActiveQuiz(null);setCurrentQ(0);setAnswers([]);setShowResult(false);};
+
+if(!activeQuiz)return(
+<section id="quizzes" className="relative py-24 sm:py-32">
+<div className="max-w-5xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} className="text-center mb-16">
+<span className="text-champagne/60 text-sm tracking-[0.3em] uppercase font-medium">Interactive</span>
+<h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-black mt-3 mb-4">Take a <span className="shimmer-text">Quiz</span></h2>
+<p className="text-white/50 max-w-xl mx-auto">Discover your inner blonde baddie with our fun personality quizzes.</p>
+</motion.div>
+<div className="grid sm:grid-cols-3 gap-6">
+{Object.entries(quizzes).map(([key,quiz],i)=>(
+<motion.div key={key} initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.15}}
+whileHover={{y:-5}} className="rounded-2xl p-8 gold-border cursor-pointer group" style={{background:'linear-gradient(135deg,rgba(212,175,55,0.05),rgba(255,182,193,0.03))'}}
+onClick={()=>startQuiz(key)}>
+<div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">{['🧠','⚡','✨'][i]}</div>
+<h3 className="font-display text-xl font-bold mb-2">{quiz.title}</h3>
+<p className="text-white/40 text-sm mb-6">{quiz.questions.length} questions • {Math.ceil(quiz.questions.length*0.5)} min</p>
+<div className="py-3 rounded-xl text-center text-sm font-medium border border-champagne/30 text-champagne group-hover:bg-champagne/10 transition-all">
+Start Quiz →
+</div></motion.div>
+))}</div></div></section>
+);
+
+const q=quizzes[activeQuiz].questions[currentQ];
+const progress=((currentQ+1)/quizzes[activeQuiz].questions.length)*100;
+
+return(
+<section id="quizzes" className="relative py-24 sm:py-32">
+<div className="max-w-3xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}} className="rounded-3xl p-6 sm:p-10 gold-border" style={{background:'linear-gradient(135deg,rgba(10,10,10,0.9),rgba(26,26,26,0.9))'}}>
+{!showResult?(
+<><div className="flex items-center justify-between mb-2">
+<button onClick={reset} className="text-white/40 hover:text-white text-sm transition-colors">← Back</button>
+<span className="text-champagne text-sm font-medium">{currentQ+1}/{quizzes[activeQuiz].questions.length}</span>
+</div>
+<div className="score-bar mb-8"><motion.div className="score-fill" animate={{width:`${progress}%`}} transition={{duration:0.5}}/></div>
+<AnimatePresence mode="wait">
+<motion.div key={currentQ} initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}} transition={{duration:0.3}}>
+<h3 className="font-display text-2xl sm:text-3xl font-bold mb-8 text-center">{q.q}</h3>
+<div className="grid sm:grid-cols-2 gap-3">
+{q.options.map((opt,i)=>(
+<motion.button key={i} whileHover={{scale:1.02}} whileTap={{scale:0.98}}
+onClick={()=>answer(q.scores[i])}
+className="quiz-option p-4 rounded-xl text-left border border-white/10 text-white/80 hover:text-white transition-all text-sm sm:text-base">
+{opt}</motion.button>
+))}</div>
+</motion.div></AnimatePresence></>
+):(
+<motion.div initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="text-center py-8">
+<motion.div initial={{scale:0}} animate={{scale:1}} transition={{delay:0.2,type:"spring"}} className="text-7xl mb-6">{getResult().icon}</motion.div>
+<motion.div initial={{width:0}} animate={{width:'100px'}} transition={{delay:0.5}} className="h-[2px] gold-gradient mx-auto mb-6 rounded-full"/>
+<h3 className="font-display text-3xl sm:text-4xl font-black mb-2" style={{color:getResult().color}}>{getResult().name}</h3>
+<p className="text-white/60 max-w-md mx-auto leading-relaxed mb-8">{getResult().desc}</p>
+<div className="flex gap-3 justify-center flex-wrap">
+<button onClick={reset} className="px-6 py-3 rounded-xl border border-champagne/30 text-champagne text-sm font-medium hover:bg-champagne/10 transition-all">Retake Quiz</button>
+<button onClick={()=>{navigator.share&&navigator.share({title:`I'm ${getResult().name}!`,text:getResult().desc}).catch(()=>{})}} className="px-6 py-3 rounded-xl gold-gradient text-luxury-black text-sm font-bold">Share Result ✦</button>
+</div>
+</motion.div>
+)}</motion.div>
+</div></section>
+);
+};
+
+const regions=[
+{name:'Hollywood Glam',region:'United States',flag:'🇺🇸',fashion:'Red carpet gowns, statement jewelry, designer labels',makeup:'Smoky eyes, bold lips, contouring',confidence:'Bold self-promotion, power dressing',popCulture:'Movie premieres, award shows, brand deals',lifestyle:'Luxury brands, private events, personal stylists',color:'#D4AF37'},
+{name:'Parisian Chic',region:'France',flag:'🇫🇷',fashion:'Effortless layers, vintage finds, silk scarves',makeup:'Minimal, "no-makeup" look, red lip',confidence:'Understated elegance, intellectual depth',popCulture:'Fashion week, art galleries, cinema',lifestyle:'Café culture, literary salons, weekend markets',color:'#FFB6C1'},
+{name:'K-Beauty Innovation',region:'South Korea',flag:'🇰🇷',fashion:'Kawaii meets high-tech, layered looks',makeup:'Glass skin, gradient lips, cute aesthetics',confidence:'Group harmony, refined presentation',popCulture:'K-drama, K-pop, beauty innovation',lifestyle:'Skincare rituals, café hopping, trend cycles',color:'#00D4FF'},
+{name:'Scandinavian Minimal',region:'Nordics',flag:'🇸🇪',fashion:'Clean lines, sustainable, functional beauty',makeup:'Natural, dewy, barely-there',confidence:'Quiet confidence, equality-driven',popCulture:'Design, sustainability, hygge lifestyle',lifestyle:'Nature, wellness, conscious living',color:'#E8E8E8'},
+{name:'Latin Passion',region:'Latin America',flag:'🇧🇷',fashion:'Bold colors, bodycon silhouettes, statement pieces',makeup:'Full glam, bronzed skin, dramatic eyes',confidence:'Unapologetic self-expression, celebration',popCulture:'Music, dance, telenovelas',lifestyle:'Social gatherings, dance, family, celebration',color:'#FF69B4'},
+{name:'Middle Eastern Luxe',region:'Gulf States',flag:'🇦🇪',fashion:'Couture, gold accessories, modest glamour',makeup:'Full glam, dramatic eyes, flawless base',confidence:'Regal presence, luxury as standard',popCulture:'Fashion weeks, luxury events, social media',lifestyle:'Luxury hospitality, gold souks, high society',color:'#FFD700'},
+];
+
+const AnalysisSection=()=>(
+<section id="analysis" className="relative py-24 sm:py-32" style={{background:'linear-gradient(180deg,#0A0A0A,#111,#0A0A0A)'}}>
+<div className="max-w-7xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} className="text-center mb-16">
+<span className="text-champagne/60 text-sm tracking-[0.3em] uppercase font-medium">Cultural Landscape</span>
+<h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-black mt-3 mb-4">Global <span className="shimmer-text">Aesthetics</span></h2>
+<p className="text-white/50 max-w-2xl mx-auto">Celebrating the diverse beauty standards and aesthetic expressions from around the world. Each style is a unique masterpiece of culture, creativity, and self-expression.</p>
+</motion.div>
+<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+{regions.map((r,i)=>(
+<motion.div key={r.name} initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1}}
+whileHover={{y:-5}} className="rounded-2xl p-6 gold-border group" style={{background:'linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))'}}>
+<div className="flex items-center gap-3 mb-4">
+<span className="text-3xl">{r.flag}</span>
+<div><h3 className="font-display text-lg font-bold" style={{color:r.color}}>{r.name}</h3><p className="text-white/40 text-xs">{r.region}</p></div>
+</div>
+<div className="space-y-3">
+{[{l:'Fashion',v:r.fashion,icon:'👗'},{l:'Makeup',v:r.makeup,icon:'💄'},{l:'Confidence',v:r.confidence,icon:'💪'},{l:'Pop Culture',v:r.popCulture,icon:'🌟'},{l:'Lifestyle',v:r.lifestyle,icon:'✨'}].map(item=>(
+<div key={item.l} className="bg-white/[0.02] rounded-xl p-3 border border-white/5 group-hover:border-white/10 transition-all">
+<div className="flex items-center gap-2 mb-1"><span className="text-sm">{item.icon}</span><span className="text-xs font-semibold uppercase tracking-wider" style={{color:r.color}}>{item.l}</span></div>
+<p className="text-white/50 text-xs leading-relaxed">{item.v}</p>
+</div>))}
+</div>
+</motion.div>
+))}</div>
+<motion.div initial={{opacity:0}} whileInView={{opacity:1}} viewport={{once:true}} className="mt-16 text-center p-8 rounded-2xl glass">
+<p className="text-white/50 text-sm leading-relaxed max-w-3xl mx-auto">
+✨ <span className="text-champagne font-medium">Every aesthetic is a celebration of creativity and self-expression.</span> This section explores different global beauty cultures as unique artistic traditions — each with its own history, artistry, and values. No standard is "better" — they're all beautifully distinct. ✨
+</p>
+</motion.div>
+</div></section>
+);
+
+const timelineData=[
+{era:'Classic Cinema',period:'1930s–1960s',icon:'🎬',color:'#D4AF37',
+icons:['Marilyn Monroe','Grace Kelly','Brigitte Bardot','Audrey Hepburn'],
+events:['Marilyn Monroe becomes the ultimate blonde bombshell','Grace Kelly transitions from actress to royalty','Blonde becomes synonymous with Hollywood glamour','Breakfast at Tiffany\'s defines elegance'],
+desc:'The golden age of Hollywood created the blueprint for blonde iconography. These women didn\'t just act — they defined an era of glamour.'},
+{era:'Supermodel Era',period:'1970s–1990s',icon:'👗',color:'#FFB6C1',
+icons:['Cindy Crawford','Claudia Schiffer','Naomi Campbell','Kate Moss'],
+events:['The rise of the supermodel phenomenon','Supermodels become bigger than movie stars','"Heroin chic" redefines beauty standards','Kate Moss launches the waif aesthetic'],
+desc:'Models became household names and cultural icons, proving that beauty could be a powerful career and cultural force.'},
+{era:'Pop Culture',period:'2000s–2010s',icon:'🎤',color:'#FFD700',
+icons:['Britney Spears','Paris Hilton','Lady Gaga','Blake Lively'],
+events:['Pop princesses dominate the charts','Paris Hilton creates the influencer blueprint','Lady Gaga redefines blonde as avant-garde','Gossip Girl makes prep chic again'],
+desc:'Blonde icons expanded beyond traditional beauty into music, television, and brand empires, reshaping pop culture.'},
+{era:'Social Media',period:'2010s–Present',icon:'📱',color:'#FF69B4',
+icons:['Kylie Jenner','Addison Rae','Charli D\'Amelio','Supergirl 2026'],
+events:['Influencers become new celebrities','TikTok democratizes fame','Authenticity becomes the new luxury','Supergirl 2026 redefines the modern icon'],
+desc:'Digital platforms created a new generation of blonde icons who connect directly with millions, making beauty and fashion more accessible than ever.'},
+];
+
+const TimelineSection=()=>(
+<section id="timeline" className="relative py-24 sm:py-32 overflow-hidden">
+<GoldParticles/>
+<div className="max-w-5xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} className="text-center mb-20">
+<span className="text-champagne/60 text-sm tracking-[0.3em] uppercase font-medium">Through the Ages</span>
+<h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-black mt-3 mb-4">The <span className="shimmer-text">Timeline</span></h2>
+<p className="text-white/50 max-w-xl mx-auto">Tracing the evolution of blonde icons from Hollywood's golden age to the digital era.</p>
+</motion.div>
+<div className="relative">
+<div className="absolute left-6 sm:left-1/2 top-0 bottom-0 w-[2px] timeline-line transform sm:-translate-x-1/2"/>
+{timelineData.map((t,i)=>(
+<motion.div key={t.era} initial={{opacity:0,x:i%2===0?-60:60}} whileInView={{opacity:1,x:0}} viewport={{once:true,margin:"-100px"}}
+transition={{duration:0.7,ease:[0.23,1,0.32,1]}}
+className={`relative mb-20 sm:mb-24 ${i%2===0?'sm:pr-[55%]':'sm:pl-[55%]'} pl-16 sm:pl-0`}>
+<div className="absolute left-6 sm:left-1/2 transform -translate-x-1/2 z-10">
+<div className="timeline-dot" style={{background:t.color,boxShadow:`0 0 20px ${t.color}60`}}/>
+</div>
+<motion.div whileHover={{y:-4}} className="rounded-2xl p-6 sm:p-8 gold-border" style={{background:`linear-gradient(135deg,${t.color}08,transparent)`}}>
+<div className="flex items-center gap-3 mb-4">
+<span className="text-3xl">{t.icon}</span>
+<div><h3 className="font-display text-2xl font-bold" style={{color:t.color}}>{t.era}</h3><p className="text-white/40 text-sm">{t.period}</p></div>
+</div>
+<p className="text-white/50 text-sm leading-relaxed mb-4">{t.desc}</p>
+<div className="flex flex-wrap gap-2 mb-4">{t.icons.map(icon=>(
+<span key={icon} className="px-3 py-1 rounded-full text-xs border border-white/10 text-white/60">{icon}</span>
+))}</div>
+<div className="space-y-2">{t.events.map((e,j)=>(
+<motion.div key={j} initial={{opacity:0,x:-10}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{delay:j*0.1}}
+className="flex items-start gap-2 text-xs text-white/40">
+<span style={{color:t.color}}>→</span><span>{e}</span>
+</motion.div>
+))}</div>
+</motion.div></motion.div>
+))}</div></div></section>
+);
+
+const hairStyles=['Platinum Waves','Golden Curls','Sleek Bob','Messy Updo','Long Straight','Pixie Cut','Beach Waves','Braided Crown'];
+const outfits=['Little Black Dress','Power Suit','Cocktail Dress','Leather Jacket + Jeans','Evening Gown','Cropped Top + Mini Skirt','Blazer Dress','Streetwear Set'];
+const makeupStyles=['Classic Glam','Natural Dewy','Bold Eye','Red Lip Focus','Smoky Eye','K-Beauty Fresh','Full Beat','Soft Glam'];
+const accessories=['Gold Hoops','Statement Necklace','Designer Bag','Sunglasses','Tiara','Pearl Set','Chain Belt','Oversized Watch'];
+const personalityTypes=['The Leader','The Creative','The Rebel','The Nurturer','The Trendsetter','The Mystery'];
+
+const BuilderSection=()=>{
+const[step,setStep]=useState(0);
+const[selections,setSelections]=useState({hair:null,outfit:null,makeup:null,accessory:null,personality:null});
+const[generated,setGenerated]=useState(false);
+const steps=[{key:'hair',title:'Choose Your Hair',options:hairStyles,emoji:'💇‍♀️'},{key:'outfit',title:'Pick Your Outfit',options:outfits,emoji:'👗'},{key:'makeup',title:'Select Your Makeup',options:makeupStyles,emoji:'💄'},{key:'accessory',title:'Add Accessories',options:accessories,emoji:'💎'},{key:'personality',title:'Your Personality',options:personalityTypes,emoji:'💫'}];
+const select=(option)=>{const s=[...selections];s[steps[step].key]=option;setSelections(s);};
+const next=()=>{if(step<steps.length-1)setStep(step+1);else setGenerated(true);};
+const prev=()=>{if(step>0)setStep(step-1);};
+const reset=()=>{setStep(0);setSelections({hair:null,outfit:null,makeup:null,accessory:null,personality:null});setGenerated(false);};
+
+if(generated){
+const name={hair:selections.hair,outfit:selections.outfit,personality:selections.personality};
+return(
+<section id="builder" className="relative py-24 sm:py-32">
+<div className="max-w-2xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="rounded-3xl overflow-hidden gold-border result-card">
+<div className="p-2"><div className="gold-gradient rounded-t-2xl py-4 text-center">
+<span className="text-luxury-black font-display text-2xl font-black">Your Baddie Card</span>
+</div></div>
+<div className="p-8 text-center">
+<motion.div initial={{scale:0}} animate={{scale:1}} transition={{delay:0.3,type:"spring"}}
+className="w-28 h-28 mx-auto rounded-full gold-gradient flex items-center justify-center mb-6" style={{boxShadow:'0 0 40px rgba(212,175,55,0.4)'}}>
+<span className="text-5xl">👱‍♀️</span>
+</motion.div>
+<h3 className="font-display text-3xl font-black shimmer-text mb-2">The {selections.personality} Blonde</h3>
+<p className="text-champagne font-script text-xl mb-6">Aesthetic Level: 100</p>
+<div className="w-16 h-[2px] gold-gradient mx-auto mb-6 rounded-full"/>
+<div className="grid grid-cols-2 gap-3 text-left mb-6">
+{[{l:'Hair',v:selections.hair,icon:'💇‍♀️'},{l:'Outfit',v:selections.outfit,icon:'👗'},{l:'Makeup',v:selections.makeup,icon:'💄'},{l:'Accessory',v:selections.accessory,icon:'💎'}].map(item=>(
+<div key={item.l} className="bg-white/5 rounded-xl p-3 border border-white/5">
+<div className="flex items-center gap-2 mb-1"><span>{item.icon}</span><span className="text-xs text-champagne/60 uppercase tracking-wider">{item.l}</span></div>
+<div className="text-sm font-medium text-white">{item.v}</div>
+</div>))}
+</div>
+<div className="flex gap-2 mb-4 flex-wrap justify-center">
+{['Iconic','Trendy','Confident','Unforgettable'].map(t=>(
+<span key={t} className="px-3 py-1 rounded-full text-xs border border-champagne/30 text-champagne">{t}</span>
+))}</div>
+<div className="score-bar mb-2"><div className="score-fill" style={{width:'100%'}}/></div>
+<div className="flex justify-between text-xs text-white/40 mb-6"><span>Baddie Score</span><span className="text-champagne font-bold">100/100 ✦</span></div>
+<div className="flex gap-3 justify-center">
+<button onClick={reset} className="px-6 py-3 rounded-xl border border-champagne/30 text-champagne text-sm font-medium hover:bg-champagne/10 transition-all">Build Another</button>
+<button className="px-6 py-3 rounded-xl gold-gradient text-luxury-black text-sm font-bold">Share Card ✦</button>
+</div>
+</div>
+</motion.div>
+</div></section>
+);
+}
+
+return(
+<section id="builder" className="relative py-24 sm:py-32">
+<div className="max-w-3xl mx-auto px-4 sm:px-6">
+<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} className="text-center mb-12">
+<span className="text-champagne/60 text-sm tracking-[0.3em] uppercase font-medium">Create</span>
+<h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-black mt-3 mb-4">Build Your <span className="shimmer-text">Baddie</span></h2>
+<p className="text-white/50 max-w-xl mx-auto">Customize every detail and create your ultimate blonde baddie character card.</p>
+</motion.div>
+<motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="rounded-3xl p-6 sm:p-10 gold-border" style={{background:'linear-gradient(135deg,rgba(10,10,10,0.9),rgba(26,26,26,0.9))'}}>
+<div className="flex items-center justify-between mb-2">
+<span className="text-white/40 text-sm">Step {step+1} of {steps.length}</span>
+<span className="text-champagne text-sm">{steps[step].emoji} {steps[step].title}</span>
+</div>
+<div className="score-bar mb-8"><motion.div className="score-fill" animate={{width:`${((step+1)/steps.length)*100}%`}} transition={{duration:0.5}}/></div>
+<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+{steps[step].options.map(opt=>(
+<motion.button key={opt} whileHover={{scale:1.05}} whileTap={{scale:0.95}}
+onClick={()=>select(opt)}
+className={`p-4 rounded-xl border text-center text-sm font-medium transition-all duration-300 ${selections[steps[step].key]===opt?'selected bg-champagne/10 border-champagne text-champagne':'border-white/10 text-white/60 hover:border-white/30'}`}>
+{opt}</motion.button>
+))}</div>
+<div className="flex justify-between mt-8">
+<button onClick={prev} disabled={step===0} className={`px-6 py-3 rounded-xl text-sm font-medium transition-all ${step===0?'text-white/20 cursor-not-allowed':'border border-white/20 text-white/60 hover:bg-white/5'}`}>← Back</button>
+<button onClick={next} disabled={!selections[steps[step].key]}
+className={`px-8 py-3 rounded-xl text-sm font-bold transition-all ${selections[steps[step].key]?'gold-gradient text-luxury-black hover:shadow-lg hover:shadow-champagne/20':'text-white/20 cursor-not-allowed'}`}>
+{step===steps.length-1?'Generate Card ✦':'Next →'}</button>
+</div>
+</motion.div>
+</div></section>
+);
+};
+
+const Footer=()=>(
+<footer className="relative py-16 border-t border-white/5">
+<div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+<div className="flex items-center justify-center gap-3 mb-6">
+<div className="w-12 h-12 rounded-full gold-gradient flex items-center justify-center"><span className="text-luxury-black font-bold">BB</span></div>
+</div>
+<h3 className="font-display text-2xl font-bold shimmer-text mb-2">The Blonde Baddies Archive</h3>
+<p className="text-white/40 text-sm mb-8 max-w-md mx-auto">A celebration of confidence, style, and cultural impact. Every baddie is unique, every aesthetic is valid.</p>
+<div className="flex justify-center gap-6 mb-8">
+{['Gallery','Quizzes','Timeline','Builder'].map(l=>(
+<a key={l} href={`#${l.toLowerCase()}`} className="text-white/40 hover:text-champagne text-sm transition-colors">{l}</a>
+))}
+</div>
+<div className="w-16 h-[1px] bg-white/10 mx-auto mb-6"/>
+<p className="text-white/20 text-xs">© 2026 The Blonde Baddies Archive. All rights reserved. Made with ✦</p>
+</div></footer>
+);
+
+const App=()=>(
+<div className="min-h-screen">
+<Navbar/>
+<HeroSection/>
+<GallerySection/>
+<QuizSection/>
+<AnalysisSection/>
+<TimelineSection/>
+<BuilderSection/>
+<Footer/>
+</div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
